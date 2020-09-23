@@ -1,0 +1,21 @@
+{
+    "vk": {
+        "token": "fdd6bf5625b6e85729be9a2f5c3617d5ac88660219b29de9078cc532fe165aec7c6cca22c586ec39d1092"
+    },
+    "group": {
+        "peerId": 2000000003,
+        "chatId": 3,
+        "id": 1,
+        "lesyaId": -158861435
+    },
+    "server": {
+        "database_url": "mongodb://localhost:27017/kosmos",
+        "port": 8080,
+        "ip": "localhost"
+    },
+    "tunnel": {
+        "local-host": "localhost",
+        "port": 8080,
+        "subdomain": "kosmos-clan"
+    }
+}

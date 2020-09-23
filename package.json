@@ -1,0 +1,32 @@
+{
+  "name": "kbot5.0",
+  "version": "5.0.0",
+  "description": "Clan`s bot helper for lesya bot (VK)",
+  "main": "bin/server.js",
+  "scripts": {},
+  "keywords": [
+    "LESYA",
+    "BOT",
+    "KOSMOS"
+  ],
+  "author": "Zharckov",
+  "license": "ISC",
+  "dependencies": {
+    "@vk-io/hear": "^1.0.2",
+    "colors": "^1.4.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "json-web-token": "^3.2.0",
+    "localtunnel": "^2.0.0",
+    "moment": "^2.29.0",
+    "mongoose": "^5.10.6",
+    "socket.io": "^2.3.0",
+    "vk-io": "^4.0.2"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "*.json",
+      "./public/*"
+    ]
+  }
+}
