@@ -5,7 +5,7 @@
 // "id": 190749868,
 // "lesyaId": -158861435
 
-const express   = require('express');
+const express   = module.exports.express = require('express');
 const SocketIO  = require('socket.io');
 const http      = require('http');
 const tunnel    = require('localtunnel');
@@ -24,6 +24,8 @@ const cmd       = module.exports.cmd    =  new HearManager();
 const lt        = module.exports.lt     =  tunnel;
 
 app.set('view engine', 'ejs');
+
+app.use(passport.initialize());
 
 // Modules
 // Модули

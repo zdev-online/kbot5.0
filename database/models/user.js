@@ -1,5 +1,6 @@
-const mongoose = require('../database');
-const Schema = new mongoose.Schema({
+const mongoose  = require('../database');
+const crypto    = require('crypto');
+const Schema    = new mongoose.Schema({
     vkId: {
         type: Number,
         required: true
@@ -31,6 +32,41 @@ const Schema = new mongoose.Schema({
             todayWin: 0,
             todayLose: 0
         }
-    }
+    },
+    isAdmin: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    login: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: 'Данный E-Mail уже зарегистрован!'
+    },
+    password: String,
+    salt: String
 });
-module.exports = mongoose.model('users', Schema);
+Schema.virtual('password')
+    .set(function(password){
+        this._plainPassword = password;
+        if(password){
+            this.salt = crypto.randomBytes(128).toString("base64");
+            this.passwordHash = crypto.pbkdf2Sync(password, this.salt, 1, 128, 'sha1');
+        } else {
+            this.salt = undefined;
+            this.passwordHash = undefined;
+        }
+    })
+    .get(function(){
+        return this._plainPassword;
+    });
+Schema.methods.checkPassword = function(password){
+    if(!password) return false;
+    if(!this.passwordHash) return false;
+    return crypto.pbkdf2Sync(password, this.salt, 1, 128, 'sha1') == this.passwordHash;
+}
+module.exports  = mongoose.model('users', Schema);

@@ -11,7 +11,8 @@
     "server": {
         "database_url": "mongodb://localhost:27017/kosmos",
         "port": 8080,
-        "ip": "localhost"
+        "ip": "localhost",
+        "jwt_secret": "kosmos-play-panel-bot-lesya-kbot5.0-online" 
     },
     "tunnel": {
         "local-host": "localhost",
