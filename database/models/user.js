@@ -47,7 +47,7 @@ const Schema    = new mongoose.Schema({
         required: true,
         unique: 'Данный E-Mail уже зарегистрован!'
     },
-    password: String,
+    passwordHash: String,
     salt: String
 });
 Schema.virtual('password')

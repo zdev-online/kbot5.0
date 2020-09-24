@@ -3,10 +3,10 @@ const cfg       = require('../config.json');
 
 
 mongoose.Promise = Promise;
-mongoose.set('debug', true);
 mongoose.connect(cfg.server.database_url, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useCreateIndex: true
 });
 
 module.exports = mongoose;

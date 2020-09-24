@@ -3,7 +3,10 @@
   "version": "5.0.0",
   "description": "Clan`s bot helper for lesya bot (VK)",
   "main": "bin/server.js",
-  "scripts": {},
+  "scripts": {
+    "start": "pm2 start ./bin/server.js",
+    "dev": "nodemon ./bin/server.js"
+  },
   "keywords": [
     "LESYA",
     "BOT",

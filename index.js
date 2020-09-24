@@ -1,10 +1,5 @@
 // "token": "215b570e5872647320ab441b1f998213b9f125537cc761ed87c0f6ac515b18cfdb397720cb55256dd43e7"
 
-// "peerId": 2000000001,
-// "chatId": 1,
-// "id": 190749868,
-// "lesyaId": -158861435
-
 const express   = module.exports.express = require('express');
 const SocketIO  = require('socket.io');
 const http      = require('http');
@@ -22,10 +17,17 @@ const io        = module.exports.io     =  SocketIO(server);
 const vk        = module.exports.vk     =  new VK(cfg.vk);
 const cmd       = module.exports.cmd    =  new HearManager();
 const lt        = module.exports.lt     =  tunnel;
+const { passport }  = require('./modules/passport');
+const ROUTER    = require('./routes/route.index');
 
+// Express values
+// Express переменные
 app.set('view engine', 'ejs');
 
+// Middlewares 
+// Промежуточные обработчики
 app.use(passport.initialize());
+app.use(ROUTER);
 
 // Modules
 // Модули

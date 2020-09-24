@@ -16,7 +16,7 @@ vk.updates.on('message_new', async (ctx, next) => {
                 text: ctx.text,
                 attachements: ctx.attachments
             })
-            logger.log(`CHAT -> ${ctx.user.first_name} ${ctx.user.last_name}: ${(ctx.text) ? ctx.text : '|-> Нет текста!'}`, 'message');
+            logger.log(`CHAT -> ${ctx.user.first_name} ${ctx.user.last_name}: ${(ctx.text) ? ctx.text : '|-> Нет текста!'}`, 'msg');
             return next();
         }
         if(ctx.senderType == "group"){
@@ -34,7 +34,7 @@ vk.updates.on('message_new', async (ctx, next) => {
         }
         ctx.user = await vk.api.users.get({user_ids: ctx.senderId});
         ctx.user = ctx.user[0];
-        logger.log(`PM -> ${ctx.user.first_name} ${ctx.user.last_name}: ${(ctx.text) ? ctx.text : '|-> Нет текста!'}`, 'message');
+        logger.log(`PM -> ${ctx.user.first_name} ${ctx.user.last_name}: ${(ctx.text) ? ctx.text : '|-> Нет текста!'}`, 'msg');
         return next();
     }
 });

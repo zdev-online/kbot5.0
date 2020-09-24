@@ -66,7 +66,7 @@ module.exports.debug  = function(text, type){
 function isValidType(type){
     switch (type){
         case 'vk': return 1;
-        case 'message': return 1;
+        case 'msg': return 1;
         case 'app': return 1;
         case 'http': return 1;
         default: return 0;
