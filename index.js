@@ -17,17 +17,17 @@ const io        = module.exports.io     =  SocketIO(server);
 const vk        = module.exports.vk     =  new VK(cfg.vk);
 const cmd       = module.exports.cmd    =  new HearManager();
 const lt        = module.exports.lt     =  tunnel;
-const { passport }  = require('./modules/passport');
-const ROUTER    = require('./routes/route.index');
 
+const ROUTER    = require('./routes/route.index');
+const API       = require('./api/api.index');
 // Express values
 // Express переменные
 app.set('view engine', 'ejs');
 
 // Middlewares 
 // Промежуточные обработчики
-app.use(passport.initialize());
 app.use(ROUTER);
+app.use('/api', API);
 
 // Modules
 // Модули
