@@ -6,6 +6,7 @@ const http      = require('http');
 const tunnel    = require('localtunnel');
 const { VK, Keyboard }      = require('vk-io');
 const { HearManager }       = require('@vk-io/hear');
+const bodyParser            = require('body-parser');
 
 const logger    = module.exports.logger =  require('./modules/logger');
 const User      = module.exports.User   =  require('./database/models/user');
@@ -26,6 +27,13 @@ app.set('view engine', 'ejs');
 
 // Middlewares 
 // Промежуточные обработчики
+app.use((req, res, next) => {
+    res.removeHeader('X-Powered-By');
+    res.setHeader('Developed-By', 'https://vk.com/id171745503');
+    return next();
+});
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(ROUTER);
 app.use('/api', API);
 
