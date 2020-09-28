@@ -33,6 +33,7 @@ app.use('/public', express.static(path.resolve(__dirname, 'public')));
 app.use((req, res, next) => {
     res.removeHeader('X-Powered-By');
     res.setHeader('Developed-By', 'https://vk.com/id171745503');
+    logger.log(`[${req.method}] ${req.ip} | ${req.path}`, 'http');
     return next();
 });
 app.use(bodyParser.json());
