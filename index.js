@@ -21,6 +21,7 @@ const lt        = module.exports.lt     =  tunnel;
 
 const ROUTER    = require('./routes/route.index');
 const API       = require('./api/api.index');
+const authCheck = require('./middlewares/authCheck');
 // Express values
 // Express переменные
 app.set('view engine', 'ejs');
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(authCheck);
 app.use(ROUTER);
 app.use('/api', API);
 

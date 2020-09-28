@@ -5,7 +5,10 @@
   "main": "bin/server.js",
   "scripts": {
     "start": "pm2 start ./bin/server.js",
-    "dev": "nodemon ./bin/server.js"
+    "dev": "nodemon ./bin/server.js",
+    "css": "sass --no-source-map ./src/css/index.scss ./public/css/styles.css",
+    "js": "",
+    "build": "npm run css & npm run js"
   },
   "keywords": [
     "LESYA",

@@ -6,6 +6,10 @@
     <title>Kosmos | Panel</title>
 </head>
 <body>
-    <% include('./parts/sidebar.ejs') %> 
+    <% if (userIsAuth) { %>
+        <%- include('./parts/sidebar.ejs') %> 
+    <% } else { %>
+        <%- include('./parts/authorization.ejs') %> 
+    <% } %> 
 </body>
 </html>
