@@ -20,22 +20,23 @@ const vk        = module.exports.vk     =  new VK(cfg.vk);
 const cmd       = module.exports.cmd    =  new HearManager();
 const lt        = module.exports.lt     =  tunnel;
 
-const ROUTER    = require('./routes/route.index');
-const API       = require('./api/api.index');
-const authCheck = require('./middlewares/authCheck');
+const cookieParser  = require('cookie-parser'); 
+const ROUTER        = require('./routes/route.index');
+const API           = require('./api/api.index');
+const authCheck     = require('./middlewares/authCheck');
 // Express values
 // Express переменные
 app.set('view engine', 'ejs');
 
 // Middlewares 
 // Промежуточные обработчики
-app.use('/public', express.static(path.resolve(__dirname, 'public')));
 app.use((req, res, next) => {
     res.removeHeader('X-Powered-By');
     res.setHeader('Developed-By', 'https://vk.com/id171745503');
     logger.log(`[${req.method}] ${req.ip} | ${req.path}`, 'http');
     return next();
 });
+app.use('/public', express.static(path.resolve(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(authCheck);

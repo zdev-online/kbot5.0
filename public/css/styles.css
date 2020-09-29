@@ -15,66 +15,62 @@ a {
   text-decoration: none;
 }
 
-html, body {
+html, body, .site-body {
   width: 100%;
   height: 100%;
 }
 
-.auth {
+.loading-page {
+  display: none;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-.auth input {
-  border: 1px solid white;
-  padding: 5px;
-  color: black;
-  background-color: white;
+.loading-page i {
+  color: #5a05bb;
+}
+
+.error-window {
+  display: none;
+  position: absolute;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 25%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 5px;
 }
-.auth .auth_logo {
-  margin-bottom: 10px;
+.error-window h2, .error-window p, .error-window button {
+  width: max-content;
+  background: rgba(0, 0, 0, 0);
+  width: 100%;
+}
+.error-window h2 {
   display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  font-size: 2em;
-  width: 15%;
+  color: red;
+  border-bottom: 1px solid white;
 }
-.auth .auth_logo h1 {
-  margin-left: 5px;
+.error-window p {
+  flex: 3;
 }
-.auth .auth_logo i {
-  margin-right: 5px;
+.error-window button, .error-window h2 {
+  flex: 1;
 }
-.auth .auth_form .auth_send div {
-  display: flex;
-  width: 100%;
+.error-window button {
+  border: 0px;
+  outline: none;
+  border-top: 1px solid white;
 }
-.auth .auth_form .auth_send div input {
-  margin: 5px;
-}
-.auth .auth_form .vkId div {
-  display: flex;
-  width: 100%;
-}
-.auth .auth_form .vkId div input {
-  width: 100%;
-  margin: 5px;
-}
-.auth .auth_form .auth_form_main {
-  display: flex;
-  flex-direction: column;
-}
-.auth .auth_form .auth_form_main div {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-}
-.auth .auth_form .auth_form_main div input {
-  width: 100%;
-  margin: 5px;
+.error-window p {
+  padding: 5px;
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow-y: auto;
 }

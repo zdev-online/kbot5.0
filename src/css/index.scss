@@ -8,11 +8,6 @@
 
 ul, ol, li{ list-style: none; }
 a{ text-decoration: none; }
-
-html, body{
-    width: 100%;
-    height: 100%;
-}
+html, body, .site-body{ width: 100%; height: 100%; }
 
 @import '../../public/icons/css/all.css';
-@import './parts/auth.scss';

@@ -5,15 +5,15 @@ const bcrypt        = require('bcrypt');
 const Schema        = new mongoose.Schema({
     vkId: {
         type: Number,
-        required: true
+        required: false
     },
     lesyaId: {
         type: Number,
-        required: true
+        required: false
     },
     nick: {
         type: String,
-        required: true
+        required: false
     },
     war: {
         type: Object,
@@ -33,6 +33,7 @@ const Schema        = new mongoose.Schema({
         default: false
     },
     login: {
+        unique: true,
         required: true,
         type: String
     },

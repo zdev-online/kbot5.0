@@ -60,7 +60,8 @@ route.post('/signin', async (req, res) => {
 
 // Регистрация
 route.post('/signup', async (req, res) => {
-    if(!req.body || !req.body.login || !req.body.password || !req.body.lesyaId || !req.body.lesyaNick || !req.body.vkId){
+    console.log(req.body)
+    if(!req.body || !req.body.login || !req.body.password){
         return res.status(403).json({
             error: true,
             message: 'Пожалуйста заполните все поля!'
@@ -86,10 +87,7 @@ route.post('/signup', async (req, res) => {
             } else {
                 let user = await new User({
                     login: req.body.login,
-                    password: req.body.password,
-                    vkId: req.body.vkId,
-                    lesyaId: req.body.lesyaId,
-                    nick: req.body.lesyaNick
+                    password: req.body.password
                 }).save();
                 let token = jwt.sign({
                     id: user._id,

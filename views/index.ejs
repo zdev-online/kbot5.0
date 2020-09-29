@@ -5,12 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/css/styles.css">
     <title>Kosmos | Panel</title>
+    <script src="public/js/scripts.js"></script>
 </head>
 <body>
-    <% if (userIsAuth) { %>
-        <%- include('./parts/sidebar.ejs') %> 
-    <% } else { %>
-        <%- include('./parts/authorization.ejs') %> 
-    <% } %> 
+    <article id="site-body" class="site-body">
+        <section class="loading-page" id="loading-page">
+            <i class="fad fa-spinner fa-pulse fa-7x"></i>
+        </section>
+    </article>
+    <div class="error-window" id="error-window">
+        <h2>Ошибка</h2>
+        <p></p>
+        <button>Закрыть</button>
+    </div>
 </body>
 </html>
