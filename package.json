@@ -1,43 +1,16 @@
 {
   "name": "kbot5.0",
   "version": "5.0.0",
-  "description": "Clan`s bot helper for lesya bot (VK)",
+  "description": "KBot 5.0 - Bot Lesya - Helper",
   "main": "bin/server.js",
-  "scripts": {
-    "start": "pm2 start ./bin/server.js",
-    "dev": "nodemon ./bin/server.js",
-    "css": "sass --no-source-map ./src/css/index.scss ./public/css/styles.css",
-    "js": "browserify ./src/js/index.js -o ./public/js/scripts.js",
-    "build": "npm run css & npm run js"
-  },
-  "keywords": [
-    "LESYA",
-    "BOT",
-    "KOSMOS"
-  ],
-  "author": "Zharckov",
-  "license": "ISC",
   "dependencies": {
-    "@vk-io/hear": "^1.0.2",
-    "axios": "^0.20.0",
-    "bcrypt": "^5.0.0",
-    "body-parser": "^1.19.0",
-    "colors": "^1.4.0",
-    "cookie-parser": "^1.4.5",
     "ejs": "^3.1.5",
-    "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "localtunnel": "^2.0.0",
-    "moment": "^2.29.0",
-    "mongoose": "^5.10.6",
-    "mongoose-findorcreate": "^3.0.0",
-    "socket.io": "^2.3.0",
-    "vk-io": "^4.0.2"
+    "express": "^4.17.1"
   },
-  "nodemonConfig": {
-    "ignore": [
-      "*.json",
-      "./public/*"
-    ]
-  }
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zharckov ( https://vk.com/id171745503 )",
+  "license": "ISC"
 }
