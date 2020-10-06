@@ -4,12 +4,32 @@
   "description": "KBot 5.0 - Bot Lesya - Helper",
   "main": "bin/server.js",
   "dependencies": {
+    "@vk-io/hear": "^1.0.2",
+    "core-js": "^3.6.5",
+    "css-loader": "^4.3.0",
     "ejs": "^3.1.5",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "localtunnel": "^2.0.0",
+    "mongoose": "^5.10.7",
+    "regenerator-runtime": "^0.13.7",
+    "socket.io": "^2.3.0",
+    "vk-io": "^4.0.3",
+    "vue": "^2.6.12",
+    "vue-loader": "^15.9.3",
+    "vue-template-compiler": "^2.6.12"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "deepmerge": "^4.2.2",
+    "sass": "^1.26.11",
+    "sass-loader": "^10.0.2",
+    "vuetify": "^2.3.12",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "pm2 start bin/server.js",
+    "dev": "nodemon bin/server.js",
+    "js": "webpack --config ./webpack.config.js"
   },
   "author": "Zharckov ( https://vk.com/id171745503 )",
   "license": "ISC"
