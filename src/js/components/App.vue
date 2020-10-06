@@ -1,8 +1,13 @@
 <template>
-    <h1>Vue - Test</h1>
+    <h1>{{msg}}</h1>
 </template>
 
 <script>
     export default {
+        data: function(){
+            return {
+                msg: "Hello, world!"
+            }
+        }
     }
 </script>
