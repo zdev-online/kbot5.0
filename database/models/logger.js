@@ -30,6 +30,7 @@ module.exports = class Logger {
     }
 
     warn = {
+        file: this.file,
         vk: async function(text){
             try {
                 let log = new Logs({
@@ -39,7 +40,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.warn(color.yellow(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.warn(color.yellow(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -54,7 +55,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.warn(color.yellow(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.warn(color.yellow(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -69,7 +70,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.warn(color.yellow(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.warn(color.yellow(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -78,6 +79,7 @@ module.exports = class Logger {
     }
 
     info = {
+        file: this.file,
         vk: async function(text){
             try {
                 let log = new Logs({
@@ -87,7 +89,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.info(color.green(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.info(color.green(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -102,7 +104,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.info(color.green(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.info(color.green(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -117,7 +119,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.info(color.green(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.info(color.green(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -126,6 +128,7 @@ module.exports = class Logger {
     }
 
     error = {
+        file: this.file,
         vk: async function(text){
             try {
                 let log = new Logs({
@@ -135,7 +138,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.error(color.red(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.error(color.red(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -150,7 +153,7 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.error(color.red(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.error(color.red(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
@@ -165,12 +168,23 @@ module.exports = class Logger {
                     text: text
                 });
                 await log.save();
-                return console.error(color.red(`[${log.date}] [${log.type}] [${log.from}] [${this.file}] > ${log.text}`));
+                return console.error(color.red(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
             } catch(error) {
                 console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
                 return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
             }
         }
+    }
+
+    getLastFiveLogs(from, type){
+        return new Promise(async (ok, err) => {
+            try {
+                let logs = await Logs.find({ from: from, type: type }).limit(5);
+                return ok(logs);
+            } catch (error) {
+                return err(error);
+            }
+        });
     }
 
     async serverMiddleware(req, res, next){

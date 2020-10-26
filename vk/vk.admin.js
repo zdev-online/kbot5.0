@@ -1,0 +1,169 @@
+const { hm, cfg, logger, players, io, vk, Keyboard, settings, keys, battles } = require('./vk.index');
+
+hm.hear(/^\/ad( )?([\w\W]+)?/i, async (ctx) => {
+    if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`); }
+    try {
+        let chatMembers = await vk.api.messages.getConversationMembers({ peer_id: cfg.vk.peerId });
+        let message = ``;
+        let online = 0;
+        for(let i = 0; i < chatMembers.profiles.length; i++){
+            message += `[id${chatMembers.profiles[i].id}|&#8203;]`;
+            online += (chatMembers.profiles[i].online) ? 1 : 0;
+        }
+        message += `👥 Онлайн: ${online}\n`;
+        message += (ctx.$match[2]) ? `⚠ Объявление: ${ctx.$match[2]}` : '⚠ Объявление';
+        return ctx.send(message);
+    } catch(error) {
+        logger.error.vk(`VK: /ad: ${error.message}`);
+        return ctx.send(`❗ Произошла ошибка!`);
+    }
+});
+
+hm.hear(/^\/rob/i, async (ctx) => {
+    if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`); }
+    try {
+        let message = ``;
+        let members = await vk.api.messages.getConversationMembers({ peer_id: cfg.group.peerId });
+        let online = 0;
+        for(let i = 0; i < members.profiles.length; i++){
+            message += `[${members.profiles[i].screen_name}|&#8203;]`;
+            online += (members.profiles[i].online) ? 1 : 0;
+        }
+        message += `👥 Онлайн: ${online}\n`;
+        message += `💰 Закупаемся на ограбление!`;
+        return ctx.send(message, {
+            keyboard: Keyboard.keyboard([
+                Keyboard.textButton({label: 'Предметы', color: "positive"})
+            ]).inline(true)
+        });
+    } catch(error) {
+        logger.error.vk(`VK: /rob: ${error.message}`);
+        return ctx.send(`❗ Произошла ошибка!`);
+    }
+});
+
+hm.hear(/^\/stuff( )(add|delete)( )?([0-4]+)?/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 4){ return ctx.send(`❗ Недостаточно прав!`);}
+    if(!ctx.hasReplyMessage){ return ctx.send(`❗ Использовать: /stuff [*add|delete] [*0-4] с ответом на сообщение пользователя, которого хотите добавить!`);}
+    if(ctx.replyMessage.senderId < 0){ return ctx.send(`❗ Зачем боту админка?`); }
+    if(ctx.replyMessage.senderId == ctx.senderId){ return ctx.send(`❗ Нельзя изменять самому себе уровень!`);}
+    try {
+        switch(ctx.$match[2]){
+            case 'add': { 
+                if(!ctx.$match[4]){ return ctx.send(`❗ Укажите уровень для пользователя!`); }
+                if(Number(ctx.$match[4]) > 5 || Number(ctx.$match[4]) < 0){return ctx.send(`❗ Уровень не может быть меньшь 0 и больше 5!`);}
+                let user = await players.changeLevel(ctx.replyMessage.senderId, ctx.$match[4]);
+                if(user.error){ return ctx.send(`❗ Ошибка: ${user.message}!`);}
+                let info = await vk.api.users.get({ user_ids: user.user.user.vkId });
+                return ctx.send(`🌌 Пользователю [id${user.user.user.vkId}|${info[0].first_name} ${info[0].last_name}] выдан ${ctx.$match[4]} уровень!`);
+            }
+            case 'delete': { 
+                break; 
+            }
+        }
+    } catch(error){
+        logger.error.vk(`VK: /stuff: ${error.message}`);
+        return ctx.send(`❗ Произошла ошибка! Отправьте разработчику код: vk_reg`);
+    }
+});
+
+hm.hear(/^\/sad( )?([\w\W]+)?/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 2){ return ctx.send(`❗ Недостаточно прав!`); }
+    try {
+        let admins = await players.getAdmins();
+        if(admins){
+            let message = ``;
+            let online = 0;
+            for(let i = 0; i < admins.length; i++){
+                let [user] = await vk.api.users.get({ user_ids: admins[i].vkId });
+                message += `[id${admins[i].vkId}|&#8203;]`;
+                online += (user.online) ? 1 : 0;
+            }
+            message += `⚙ Объявление для управляющих\n`;
+            message += `👥 Управляющие онлайн: ${online}\n`;
+            message += (ctx.$match[2]) ? `⚠ Объявление: ${ctx.$match[2]}` : '⚠ Объявление';
+            return ctx.send(message);
+        } else {
+            return ctx.send(`❗ Управляющих нет!`);
+        }
+    } catch(error) {
+        logger.error.vk(`VK: /ad: ${error.message}`);
+        return ctx.send(`❗ Произошла ошибка!`);
+    }
+});
+
+hm.hear(/^\/textad( )([\w\W\n]+)/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 3){return ctx.send(`❗ Недостаточно прав!`)}
+    try{
+        await settings.adText(ctx.$match[2]);
+        return ctx.send(`⚙ Новый текст рекламы установлен!`);
+    } catch(error){
+        logger.error.vk(`[/textad] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправьте код разработчику: set_textad_link`);
+    }
+});
+
+hm.hear(/^\/lesya( )([\w\W\n]+)/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 3){return ctx.send(`❗ Недостаточно прав!`)}
+    try{
+        await settings.lesyaLink(ctx.$match[2]);
+        return ctx.send(`⚙ Новая ссылка обсуждения установлена!`);
+    } catch(error){
+        logger.error.vk(`[/lesya] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправьте код разработчику: set_lesya_link`);
+    }
+});
+
+hm.hear(/^\/link( )([\w\W\n]+)/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 3){return ctx.send(`❗ Недостаточно прав!`)}
+    try{
+        await settings.chatLink(ctx.$match[2]);
+        return ctx.send(`⚙ Новая ссылка на беседу установлена!`);
+    } catch(error){
+        logger.error.vk(`[/link] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправьте код разработчику: set_link_chat`);
+    }
+});
+
+hm.hear(/^\/logs( )?(vk|http|app)?( )?(warn|info|error)?/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 3){return ctx.send(`❗ Недостаточно прав!`);}
+    if(!ctx.$match[2]){ return ctx.send(`❗ Укажите род логов (vk | http | app)`);}
+    if(!ctx.$match[4]){ return ctx.send(`❗ Укажите тип логов (warn | info | error)`);}
+    try {
+        let logs = await logger.getLastFiveLogs(ctx.$match[2], ctx.$match[4]);
+        let message = `⚙ Последние логи [${ctx.$match[2]} > ${ctx.$match[4]}]:\n`;
+        for(let item of logs){
+            message += `[${item.date}]: ${item.text}\n`; 
+        }
+        return ctx.send(message);
+    } catch (error) {
+        logger.error.vk(`[/logs] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправьте код разработчику: get_logs`);
+    }
+});
+
+hm.hear(/^\/norm( )?([0-9]+)?/i, async (ctx) => {
+    try {
+        if(!ctx.isAdmin || ctx.isAdmin < 2){return ctx.send(`❗ Недостаточно прав!`);}
+        if(!ctx.$match[2]){ return ctx.send(`❗ Укажите норму: 10 - 40`);}
+        if(Number(ctx.$match[2]) > 40 || Number(ctx.$match[2]) < 10){
+            return ctx.send(`❗ Укажите норму: 10 - 40`);
+        }
+        let day = await battles.addBattleDayOrChangeNorm(Number(ctx.$match[2]))
+        if(day.isNewDay){
+            return ctx.send(`⚙ Норма боёв установлена: ${ctx.$match[2]}!\n👊🏻 Теперь бои засчитываются!`);
+        } else {
+            return ctx.send(`⚙ Новая норма боёв установлена: ${ctx.$match[2]}!`);
+        }
+    } catch(error){
+        logger.error.vk(`[/norm] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправьте код разработчику: set_battle_norm`);
+    }
+});
+
+hm.hear(/^\/keys/i, (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 3){return ctx.send(`❗ Недостаточно прав!`)}
+    return ctx.send(`⚙ Клавиатура обновлена!`, {
+        keyboard: Keyboard.keyboard(keys.chat)
+    });
+});

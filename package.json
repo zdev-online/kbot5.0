@@ -6,8 +6,10 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
     "@vk-io/hear": "^1.0.2",
+    "bcrypt": "^5.0.0",
     "colors": "^1.4.0",
     "core-js": "^3.6.5",
+    "countdown": "^2.6.0",
     "css-loader": "^4.3.0",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
@@ -37,7 +39,7 @@
     "webpack-cli": "^3.3.12"
   },
   "scripts": {
-    "start": "pm2 start bin/server.js",
+    "start": "NODE_ENV=production pm2 start bin/server.js",
     "dev": "nodemon bin/server.js"
   },
   "author": "Zharckov ( https://vk.com/id171745503 )",

@@ -1,14 +1,1 @@
-{
-  "Foot": {
-    "description": "Auto imported from components/foot.vue"
-  },
-  "LazyFoot": {
-    "description": "Auto imported from components/foot.vue"
-  },
-  "Sidebar": {
-    "description": "Auto imported from components/sidebar.vue"
-  },
-  "LazySidebar": {
-    "description": "Auto imported from components/sidebar.vue"
-  }
-}
+{}

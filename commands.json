@@ -1,0 +1,74 @@
+[
+    {
+        "text": "/cmd",
+        "argv": false,
+        "desc": "Вызывает эту справку!",
+        "level": 0
+    },
+    {
+        "text": "/register",
+        "argv": "*lesyaId | lesyaNick",
+        "desc": "Регистрация в нашем боте!",
+        "level": 0
+    },
+    {
+        "text": "/stuff",
+        "argv": "*add|delete + 0-4",
+        "desc": "Управляющие беседы",
+        "level": 0
+    },
+    {
+        "text": "/check",
+        "argv": false,
+        "desc": "Состояние бота!",
+        "level": 1
+    },
+    {
+        "text": "/ad",
+        "argv": "$text",
+        "desc": "Сделать объявление!",
+        "level": 1
+    },
+    {
+        "text": "/sad",
+        "argv": "$text",
+        "desc": "Объявление для управляющих!",
+        "level": 2
+    },
+    {
+        "text": "/rob",
+        "argv": false,
+        "desc": "Созвать на ограбление!",
+        "level": 1
+    }, 
+    {
+        "text": "/textad",
+        "argv": "$text",
+        "desc": "Текст рекламы",
+        "level": 0
+    }, 
+    {
+        "text": "/lesya",
+        "argv": "$text",
+        "desc": "Ссылка обсуждения Leysa",
+        "level": 0
+    }, 
+    {
+        "text": "/link",
+        "argv": "$text",
+        "desc": "Ссылка на беседу",
+        "level": 0
+    },
+    {
+        "text": "/keys",
+        "argv": false,
+        "desc": "Обновить клавиатуру",
+        "level": 3
+    },
+    {
+        "text": "/logs",
+        "argv": "from type",
+        "desc": "Последние 5 записей логов",
+        "level": 3
+    }
+]
