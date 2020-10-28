@@ -3,72 +3,147 @@
         "text": "/cmd",
         "argv": false,
         "desc": "Вызывает эту справку!",
-        "level": 0
+        "level": 0,
+        "for_reg": false
     },
     {
         "text": "/register",
         "argv": "*lesyaId | lesyaNick",
         "desc": "Регистрация в нашем боте!",
-        "level": 0
+        "level": 0,
+        "for_reg": false
     },
     {
         "text": "/stuff",
-        "argv": "*add|delete + 0-4",
+        "argv": "$add|delete + 0-4",
         "desc": "Управляющие беседы",
-        "level": 0
+        "level": 0,
+        "for_reg": false
     },
     {
         "text": "/check",
         "argv": false,
         "desc": "Состояние бота!",
-        "level": 1
+        "level": 1,
+        "for_reg": true
     },
     {
         "text": "/ad",
         "argv": "$text",
         "desc": "Сделать объявление!",
-        "level": 1
+        "level": 1,
+        "for_reg": true
     },
     {
         "text": "/sad",
         "argv": "$text",
         "desc": "Объявление для управляющих!",
-        "level": 2
+        "level": 2,
+        "for_reg": true
     },
     {
         "text": "/rob",
         "argv": false,
         "desc": "Созвать на ограбление!",
-        "level": 1
+        "level": 1,
+        "for_reg": true
     }, 
+    {
+        "text": "/war",
+        "argv": false,
+        "desc": "Созвать на бои!",
+        "level": 1,
+        "for_reg": true
+    },
     {
         "text": "/textad",
         "argv": "$text",
         "desc": "Текст рекламы",
-        "level": 0
+        "level": 0,
+        "for_reg": false
     }, 
     {
         "text": "/lesya",
         "argv": "$text",
         "desc": "Ссылка обсуждения Leysa",
-        "level": 0
+        "level": 0,
+        "for_reg": false
     }, 
     {
         "text": "/link",
         "argv": "$text",
         "desc": "Ссылка на беседу",
-        "level": 0
+        "level": 0,
+        "for_reg": false
     },
     {
         "text": "/keys",
         "argv": false,
         "desc": "Обновить клавиатуру",
-        "level": 3
+        "level": 3,
+        "for_reg": true
     },
     {
         "text": "/logs",
-        "argv": "from type",
-        "desc": "Последние 5 записей логов",
-        "level": 3
+        "argv": "*from | type",
+        "desc": "Последние 10 записей логов",
+        "level": 3,
+        "for_reg": true
+    },
+    {
+        "text": "/me",
+        "argv": false,
+        "desc": "Информация о профиле",
+        "level": 0,
+        "for_reg": true
+    },
+    {
+        "text": "/nick",
+        "argv": "*text",
+        "desc": "Изменить ник",
+        "level": 0,
+        "for_reg": true
+    },
+    {
+        "text": "/id",
+        "argv": "*text",
+        "desc": "Изменить Lesya ID",
+        "level": 0,
+        "for_reg": true
+    },
+    {
+        "text": "/norm",
+        "argv": "*10-30",
+        "desc": "Включить счетчик \\ Смена нормы",
+        "level": 1,
+        "for_reg": true
+    },
+    {
+        "text": "/stats",
+        "argv": "$date",
+        "desc": "Статистика боёв",
+        "level": 1,
+        "for_reg": true
+    },
+    {
+        "text": "/gcheck",
+        "argv": false,
+        "desc": "Кикнуть лишних из группы",
+        "level": 4,
+        "for_reg": true
+    },
+    {
+        "text": "/postpromo",
+        "argv": "*promo",
+        "desc": "Опубликовать промокод",
+        "level": 2,
+        "for_reg": true
+    },
+    {
+        "text": "/get",
+        "argv": "*text",
+        "desc": "Гетнуть человека (Через Премиума)",
+        "level": 3,
+        "for_reg": true
     }
 ]

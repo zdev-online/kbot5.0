@@ -1,5 +1,6 @@
-const { types } = require("node-sass");
+const msg = require('./msg.control');
 
+module.exports.msg = msg;
 module.exports.countPetPower = function (ctx){
     if(!ctx.hasForwards){
         let data = ctx.text.split(/\n/gim);
@@ -98,7 +99,7 @@ module.exports.divideNumber = function (x) {
 }
 
 module.exports.findOBJ = function(array, value, key){
-    if(!Array.isArray){ throw new Error(`Передан не массив`); }
+    if(!Array.isArray(array)){ throw new Error(`Передан не массив`); }
     for(let i = 0; i < array.length; i++){
         if(array[i][key] == value){
             return {
@@ -108,4 +109,20 @@ module.exports.findOBJ = function(array, value, key){
         }
     }
     return false;
+}
+
+module.exports.formatUptime = function(time){
+    function pad(s){
+        return (s < 10 ? '0' : '') + s;
+    }
+    let hours = Math.floor(time / (60*60));
+    let minutes = Math.floor(time % (60*60) / 60);
+    let seconds = Math.floor(time % 60);
+    return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+}
+
+module.exports.randomInteger = function(min, max) {
+    // случайное число от min до (max+1)
+    let rand = min + Math.random() * (max + 1 - min);
+    return Math.floor(rand);
 }

@@ -1,6 +1,5 @@
-const { hm, cfg, logger, players, io, time, vk, settings } = require('./vk.index');
+const { hm, cfg, logger, players, io, time, vk, settings, battles } = require('./vk.index');
 const fs = require('fs');
-const os = require('os');
 
 // 👥 - 1 Уровень
 // 🔥 - 2 Уровень
@@ -14,7 +13,7 @@ CMD = CMD.sort((a, b) => {
 });
 let CMDS = `❗ Команды бота [${CMD.length}]:\n`;
 for(let item of CMD){
-    CMDS += `[${LEVELS[item.level]}] `;
+    CMDS += `[${LEVELS[item.level]}] ${item.for_reg ? '@ ' : ''}`;
     CMDS += `${item.text} `;
     CMDS += (item.argv) ? `[${item.argv}] ` : '';
     CMDS += `- ${item.desc}\n`;
@@ -30,33 +29,6 @@ CMDS += `⚙ - Разработчик\n`;
 
 hm.hear(/^\/cmd/i, (ctx) => {
     return ctx.send(CMDS);
-});
-
-hm.hear(/^\/check/i, async (ctx) => {
-    let uptime = formatUptime(process.uptime());
-    let info = JSON.parse(fs.readFileSync('./package.json'));
-    let used = Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100 + ' Мб';
-    let total = Math.round(process.memoryUsage().heapTotal / 1024 / 1024 * 100) / 100 + ' Мб';
-    let rss = Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100 + ' Мб';
-    let ext = Math.round(process.memoryUsage().external / 1024 / 1024 * 100) / 100 + ' Мб';
-    let ping = (time() - time(ctx.createdAt*1000))/1000;
-    let OSMF = Math.round(os.freemem() / 1024 / 1024 / 1024 * 100) / 100;
-    let OSMT = Math.round(os.totalmem() / 1024 / 1024 / 1024 * 100) / 100;
-    let message = `⚙ Статистика бота:\n`;
-    message += `> Version: ${info.version}\n`;
-    message += `> Name: KBot\n\n`;
-    message += `> Time: ${time().format('HH:mm:ss')}\n`;
-    message += `> Date: ${time().format('DD.MM.YYYY')}\n`;
-    message += `> Uptime: ${uptime}\n`;
-    message += `> Ping: ${ping} сек\n\n`;
-    message += `> Used: ${used}\n`;
-    message += `> Total: ${total}\n`;
-    message += `> RSS: ${rss}\n`;
-    message += `> EXT: ${ext}\n\n`;
-    message += `> OSMU: ${(OSMT - OSMF).toFixed(2)} Гб\n`;
-    message += `> OSMF: ${OSMF} Гб\n`;
-    message += `> OSMT: ${OSMT} Гб\n`;
-    return ctx.send(message);
 });
 
 hm.hear(/^\/register( )?([0-9]+)?( )?([\w\W]+)?/i, async (ctx) => {
@@ -87,14 +59,15 @@ hm.hear(/^\/register( )?([0-9]+)?( )?([\w\W]+)?/i, async (ctx) => {
     }
 });
 
-hm.hear(/^\/stuff/i, async (ctx) => {
+hm.hear(/^\/stuff( )?/i, async (ctx) => {
+    if(ctx.$match[1]){return 1;}
     try {
         let admins = await players.getAdmins();
         if(!admins){ return ctx.send(`❗ Управляющих не найдено!`); }
-        let message = `🌌 Управляющие беседы:\n\n`;
+        let message = `[🌌] Управляющие беседы:\n\n`;
         for(let i = 0; i < admins.length; i++){
             let user = await vk.api.users.get({ user_ids: admins[i].vkId });
-            message += `[${LEVELS[admins[i].level]}] ${user[0].first_name} ${user[0].last_name}\n`;
+            message += `${LEVELS[admins[i].level]} ${user[0].first_name} ${user[0].last_name}\n`;
         }
         return ctx.send(message);
     } catch(error){
@@ -143,12 +116,65 @@ hm.hear(/^\/link( )?/i, async (ctx) => {
     }
 });
 
-function formatUptime (time){
-    function pad(s){
-        return (s < 10 ? '0' : '') + s;
+hm.hear(/^\/me/, async (ctx) => {
+    if(ctx.$match[1]){return 1;}
+    if(!ctx.info){ return ctx.send(`❗ Вы не зарегистрованы!`);}
+    try {  
+        let message = `🌌 ${ctx.info.nick}, ваш профиль:\n`;
+        message += `⚙ VK: ${ctx.info.vkId}\n`;
+        message += `⚙ Lesya: ${ctx.info.lesya}\n`;
+        message += `${LEVELS[ctx.info.level]} Уровень: ${ctx.info.level}\n\n`;
+        message += `⚔ Бои (Все время):\n`;
+        message += `&#12288;👊🏻 Всего: ${ctx.info._all}\n`;
+        message += `&#12288;😎 Побед: ${ctx.info._win}\n`;
+        message += `&#12288;😥 Проигрышей: ${ctx.info._lose}\n\n`;
+        let u_battle = await battles.getUser(ctx.info.nick);
+        if(u_battle.data){
+            message += `⚔ Бои: (За сегодня):\n`;
+            message += `&#12288;👊🏻 Всего: ${u_battle.data.all}\n`;
+            message += `&#12288;😎 Побед: ${u_battle.data.win}\n`;
+            message += `&#12288;😥 Проигрышей: ${u_battle.data.lose}\n`;
+        } else {
+            message += `⚔ Бои: (За сегодня):\n`;
+            if(u_battle.code == 'USER_NOT_FOUND')
+                message += `&#12288;🚫 Сегодня вы не играли!`;
+            if(u_battle.code == 'DATE_NOT_FOUND')
+                message += `&#12288;🚫 Сегодня не было боёв!`;
+        }
+        return ctx.send(message);
+    } catch {
+        logger.error.vk(`[/profile] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправь разработчику код: profile_get`);
     }
-    let hours = Math.floor(time / (60*60));
-    let minutes = Math.floor(time % (60*60) / 60);
-    let seconds = Math.floor(time % 60);
-    return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
-}
+});
+
+hm.hear(/^\/nick( )?([\w\W]+)?/i, async (ctx) => {
+    if(!ctx.info){ return ctx.send(`❗ Вы не зарегистрованы!`);}
+    try {
+        let user = await players.update(ctx.senderId, {nick: nick});
+        if(user){
+            return ctx.send(`⚙ ${ctx.info.nick}, ник изменен!`);
+        } else {
+            return ctx.send(`❗ Вы не зарегистрованы!`)
+        }
+    } catch (error) {
+        logger.error.vk(`[/nick] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправь разработчику код: profile_nick_set`);
+    }
+});
+
+hm.hear(/^\/id( )?([0-9]+)?/i, async (ctx) => {
+    if(!ctx.info){ return ctx.send(`❗ Вы не зарегистрованы!`);}
+    try {
+        let user = await players.update(ctx.senderId, { lesya: ctx.$match[2] });
+        if(user){
+            return ctx.send(`⚙ ${ctx.info.nick}, lesya ID изменен!`);
+        } else {
+            return ctx.send(`❗ Вы не зарегистрованы!`)
+        }
+    } catch (error) {
+        logger.error.vk(`[/id] >> ${error.message}`);
+        return ctx.send(`❗ Упс... Что-то пошло не так!\n❗ Отправь разработчику код: profile_id_set`);
+    }
+});
+

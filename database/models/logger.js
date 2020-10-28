@@ -176,10 +176,12 @@ module.exports = class Logger {
         }
     }
 
-    getLastFiveLogs(from, type){
+    getLastTenLogs(from, type){
         return new Promise(async (ok, err) => {
             try {
-                let logs = await Logs.find({ from: from, type: type }).limit(5);
+                let logs = await Logs.find({ from: from, type: type });
+                logs = logs.reverse();
+                logs.splice(10, logs.length);
                 return ok(logs);
             } catch (error) {
                 return err(error);

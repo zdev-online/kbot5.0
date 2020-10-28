@@ -14,6 +14,8 @@ const logger = module.exports.logger = new (require('./database/models/logger'))
 const players = module.exports.players = new (require('./database/models/user'))();
 const settings = module.exports.settings = new (require('./database/models/settings'))();
 const battles = module.exports.battles = new (require('./database/models/battles'))();
+const promo = module.exports.promo = new (require('./database/models/promo'))();
+const wars = module.exports.wars = new (require('./database/models/wars'))();
 const localtunnel = module.exports.lt = require('localtunnel');
 const nuxtCfg = module.exports.nuxtCfg = require('./nuxt.config');
 const utils = module.exports.utils = require('./modules/utils');

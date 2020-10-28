@@ -1,7 +1,6 @@
-const { vk, cfg, logger, hm, io, players, Keyboard, utils, battles, time, settings } = module.exports = require('../index');
+const { vk, cfg, logger, hm, io, players, Keyboard, utils, battles, time, settings, wars } = module.exports = require('../index');
 
 vk.updates.on('message_new', async (ctx, next) => {
-    if(ctx.senderId == 171745503){}
     try {
         // Если сообщение отправил пользователь
         if(ctx.peerType == 'chat' && ctx.peerId != cfg.vk.peerId){
@@ -34,15 +33,11 @@ vk.updates.on('message_new', async (ctx, next) => {
         } 
     } catch(error){
         ctx.send(`Произошла ошибка! Передайте разработчику код: vk_on_main`);
+        console.log(error.stack);
         return logger.error.vk(`${error}`);
     }
 });
 vk.updates.on('message_new', hm.middleware);
-
-
-require('./vk.admin');
-require('./vk.users');
-require('./users/creator');
 
 async function lesyaHandler(ctx){
     if(/([\w\W]+), на руках [0-9\.?]+/gim.test(ctx.text)){
@@ -138,13 +133,13 @@ async function lesyaHandler(ctx){
                 enemy: parseInfo[3],
                 start: time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY')
             }
-        
+            await battles.startBattle(info.nick, info.enemy, info.start);
+            return 1;
         } catch(error){
             logger.error.vk(`Battle start: ${error.message}`);
             console.log(error.stack);
             return ctx.send(`❗ При регистрации боях произошла ошибка!\n ❗ Отправьте код разработчику: start_battle`);
         }
-        return 1;
     }
     if(/([\w\W]+), Ваши питомцы (победили|проиграли)/gim.test(ctx.text)){
         try {
@@ -156,16 +151,38 @@ async function lesyaHandler(ctx){
                 result: result,
                 end: time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY')
             }
-            
+            let data = await battles.endBattle(info.nick, info.result, info.end);
+            if(data){
+                await players.updateBattleStats({
+                    nick: info.nick,
+                    all: 1,
+                    win: (info.result == 'Победа') ? 1 : 0,
+                    lose: (info.result == 'Победа') ? 0 : 1
+                });
+                let message = `🌌 ${info.nick}, бой засчитан!\n`;
+                message += `👊🏻 Всего: ${data.all}\n`;
+                message += (data.user_norm) ? `✅ Норма [${data.norm}]: Выполнена` : `🚫 Норма [${data.norm}]: Не выполенена!`; 
+                return ctx.send(message);
+            }
         } catch(error){
             logger.error.vk(`Battle end: ${error.message}`);
             console.log(error.stack);
             return ctx.send(`❗ При регистрации боях произошла ошибка!\n ❗ Отправьте код разработчику: end_battle`);
         }
     }
+    if(/Война началась! Противник - «([\w\W]+)»/gim.test(ctx.text)){
+        let enemy = ctx.text.match(/Война началась! Противник - «([\w\W]+)»/i);
+        enemy = enemy[1];
+        let start = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY');
+        let war = await wars.startWar(start, enemy);
+        if(war){
+            return ctx.send(`🌌 Клановая война начата, жду результатов...`);
+        } else {
+            return 1;
+        }
+    }
     return 1;
 }
-
 
 // Призыв к боям, Реклама группы
 setInterval(function(){
@@ -183,9 +200,8 @@ setInterval(function(){
     });
 }, 60 * 1000 * 60);
 
+require('./vk.admin');
+require('./vk.users');
+require('./users/creator');
+require('./users/premium');
 
-battles.startBattle('Zharckov', 'Enemy', '02:02:02, 20.10.2020');
-battles.startBattle('Zharckov', 'Enemy', '02:02:02, 20.10.2020');
-battles.startBattle('Zharckov', 'Enemy', '02:02:02, 20.10.2020');
-battles.startBattle('Zharckov', 'Enemy', '02:02:02, 20.10.2020');
-battles.startBattle('Zharckov', 'Enemy', '02:02:02, 20.10.2020');

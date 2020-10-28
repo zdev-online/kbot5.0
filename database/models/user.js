@@ -17,6 +17,10 @@ const UserSchema = new Schema({
         type: Number,
         required: true
     },
+    nick: {
+        required: true,
+        type: String
+    },
     password: {
         type: String,
         required: true
@@ -26,22 +30,17 @@ const UserSchema = new Schema({
         required: false,
         default: 0
     },
-    battleDays: {
-        type: Array,
-        required: false,
-        default: []
-    },
-    allBattle:{
+    _all:{
         required: false,
         type: Number,
         default: 0
     },
-    win:{
+    _win:{
         required: false,
         type: Number,
         default: 0
     },
-    lose:{
+    _lose:{
         required: false,
         type: Number,
         default: 0
@@ -65,7 +64,8 @@ module.exports = class Players {
                 let user = await new User({
                     vkId: options.vkId,
                     password: options.password,
-                    lesya: options.lesya
+                    lesya: options.lesya,
+                    nick: options.nick
                 }).save();
                 return ok(user.vkId);
             } catch(error){
@@ -112,10 +112,10 @@ module.exports = class Players {
             try {
                 let user = await this.get(vkId);
                 if(!user){
-                    return ok({error: true, message: 'Пользователь не зарегистрован в боте!'});
+                    return ok(false);
                 } 
                 user = await User.findOneAndUpdate({ vkId: vkId }, options);
-                return ok({error: false, user});
+                return ok(user);
             } catch(error) {
                 return err(error);
             }
@@ -132,5 +132,22 @@ module.exports = class Players {
         });
     }
 
-    
+    updateBattleStats(options){
+        return new Promise(async (ok, err) => {
+            try {
+                let user = await User.findOne({nick: options.nick});
+                if(user){
+                    user._all += options.all;
+                    user._win += options.win;
+                    user._lose += options.lose;
+                    await user.save();
+                    return ok(user);
+                } else {
+                    return ok(false);
+                }
+            } catch(error){
+                return err(error);
+            }
+        });
+    }
 }
