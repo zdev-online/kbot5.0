@@ -145,5 +145,19 @@
         "desc": "Гетнуть человека (Через Премиума)",
         "level": 3,
         "for_reg": true
+    },
+    {
+        "text": "\"Баланс\"",
+        "argv": false,
+        "desc": "Расчёт баланса",
+        "level": 0,
+        "for_reg": false
+    },
+    {
+        "text": "\"Питомцы\"",
+        "argv": false,
+        "desc": "Расчёт питомцев",
+        "level": 0,
+        "for_reg": false 
     }
 ]

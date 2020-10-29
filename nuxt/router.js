@@ -3,6 +3,8 @@ import Router from 'vue-router'
 import { interopDefault } from './utils'
 import scrollBehavior from './router.scrollBehavior.js'
 
+const _0d217c98 = () => interopDefault(import('..\\node_modules\\@nuxt\\vue-app\\template\\pages\\index.vue' /* webpackChunkName: "" */))
+
 // TODO: remove in Nuxt 3
 const emptyFn = () => {}
 const originalPush = Router.prototype.push
@@ -19,7 +21,10 @@ export const routerOptions = {
   linkExactActiveClass: 'nuxt-link-exact-active',
   scrollBehavior,
 
-  routes: [],
+  routes: [{
+    path: "",
+    component: _0d217c98
+  }],
 
   fallback: false
 }

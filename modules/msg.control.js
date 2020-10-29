@@ -11,7 +11,7 @@ module.exports.matchGroupOrUser = async (string, vk) => {
             if(user[1]){
                 let check = await vk.api.utils.resolveScreenName({screen_name: user[1]});
                 if(!check){return false;}
-                if(check.type == 'group' && check.object_id != cfg.vk.id){
+                if(check.type == 'group' && (check.object_id != cfg.vk.id || check.object_id != +cfg.vk.lesyaId)){
                     return true;
                 }
             }

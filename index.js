@@ -1,7 +1,6 @@
 const path = require('path');
 const express = require('express');
 const { VK, Keyboard } = require('vk-io');
-const { Nuxt, Builder } = require('nuxt');
 const { HearManager } = require('@vk-io/hear');
 const app = module.exports.app = express();
 const http = module.exports.http = require('http').createServer(app);
@@ -17,27 +16,31 @@ const battles = module.exports.battles = new (require('./database/models/battles
 const promo = module.exports.promo = new (require('./database/models/promo'))();
 const wars = module.exports.wars = new (require('./database/models/wars'))();
 const localtunnel = module.exports.lt = require('localtunnel');
-const nuxtCfg = module.exports.nuxtCfg = require('./nuxt.config');
 const utils = module.exports.utils = require('./modules/utils');
 const time = require('moment');
 time.locale('ru')
 module.exports.time = time;
 module.exports.Keyboard = Keyboard;
-nuxtCfg.dev = process.env.NODE_ENV !== 'production';
-// const nuxt = new Nuxt(nuxtCfg);
 
-// Убран Builder не забыть прикрутить обратно
-// if(nuxtCfg.dev){
-//     const builder = new Builder(nuxt);
-//     builder.build();
-// }
+const { Nuxt, Builder } = require('nuxt');
+const NuxtConfig = module.exports.NuxtConfig = require('./nuxt.config');
+NuxtConfig.dev = cfg.env.mode !== 'production';
+const nuxt = new Nuxt(NuxtConfig);
+
+(NuxtConfig.dev) ? new Builder(nuxt).build() : '';
+
 
 // Settings
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 // Middlewares
-app.use(logger.serverMiddleware);
-// app.use(nuxt.render);
+app.use((req, res, next) => {
+    logger.info.http(`${req.ip} | ${req.path} | ${req.method}`);
+    return next();
+});
+app.use(nuxt.render);
+
 
 require('./vk/vk.index');
+require('./io/io.index');

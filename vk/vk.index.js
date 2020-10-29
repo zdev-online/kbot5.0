@@ -1,17 +1,21 @@
-const { vk, cfg, logger, hm, io, players, Keyboard, utils, battles, time, settings, wars } = module.exports = require('../index');
+const { vk, cfg, logger, hm, io, players, Keyboard, utils, battles, time, settings, wars, keys } = module.exports = require('../index');
 
 vk.updates.on('message_new', async (ctx, next) => {
     try {
         // Если сообщение отправил пользователь
         if(ctx.peerType == 'chat' && ctx.peerId != cfg.vk.peerId){
-            return ctx.send(`Вам повезло, пока что тут нет рекламы!`);
+            logger.info.vk(`Отправлена реклама: SID: ${ctx.senderId} PID: ${ctx.peerId}`);
+            let textAD = await settings.adText();
+            return ctx.send(textAD || '*Реклама*', {
+                keyboard: Keyboard.keyboard(keys.ad)
+            });
         }
         if(ctx.senderType == 'user'){
             let [user] = await vk.api.users.get({ user_ids: ctx.senderId });
             ctx.vk = user;
             ctx.info = await players.get(ctx.senderId);
             ctx.isAdmin = (ctx.info && ctx.info.level > 0) ? ctx.info.level : false;
-            logger.info.vk(`[${ctx.vk.first_name} ${ctx.vk.last_name}] [${ctx.isAdmin ? 'Admin '+ctx.isAdmin : 'User'}] >> ${ctx.text}`);
+            logger.message(`[${ctx.vk.first_name} ${ctx.vk.last_name}] [${ctx.isAdmin ? 'Admin '+ctx.isAdmin : 'User'}] >> ${ctx.text}`);
             // Если сообщение пришло из чата
             if(ctx.peerType == 'chat'){
                 return next();

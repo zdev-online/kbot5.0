@@ -1,14 +1,10 @@
 import Vue from 'vue'
 
 import { getMatchedComponentsInstances, getChildrenComponentInstancesUsingFetch, promisify, globalHandleError, urlJoin, sanitizeComponent } from './utils'
-import NuxtError from '..\\client\\layouts\\error.vue'
+import NuxtError from './components/nuxt-error.vue'
 import NuxtLoading from './components/nuxt-loading.vue'
 
-import '..\\client\\assets\\css\\index.scss'
-
-import '..\\node_modules\\vuetify\\dist\\vuetify.css'
-
-import _6f6c098b from '..\\client\\layouts\\default.vue'
+import _6f6c098b from './layouts/default.vue'
 
 const layouts = { "_default": sanitizeComponent(_6f6c098b) }
 

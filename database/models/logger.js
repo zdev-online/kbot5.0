@@ -127,6 +127,22 @@ module.exports = class Logger {
         }
     }
 
+    async message (text){
+        try {
+            let log = new Logs({
+                date: time().format('HH:mm:ss, DD.MM.YYYY'),
+                type: 'message',
+                from: 'vk',
+                text: text
+            });
+            await log.save();
+            return console.info(color.green(`[${log.date}] [${log.type}] [${log.from}] > ${log.text}`));
+        } catch(error) {
+            console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.message}`);
+            return console.error(`[${time().format('HH:mm:ss, DD.MM.YYYY')}] [Logger] > ${error.stack}`);
+        }
+    }
+
     error = {
         file: this.file,
         vk: async function(text){
@@ -187,10 +203,5 @@ module.exports = class Logger {
                 return err(error);
             }
         });
-    }
-
-    async serverMiddleware(req, res, next){
-        this.info.http(`${req.ip} | ${req.path} | ${req.method}`);
-        return next();    
     }
 }

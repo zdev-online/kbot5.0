@@ -5,10 +5,36 @@ const user = new VK({ token: cfg.vk.users.creator.token });
 const countdown = require('countdown');
 const cmd = new HearManager();
 const time = require('moment');
+const game = require('gamedig');
 time.locale('ru');
 
-user.updates.start();
+user.updates.start()
+	.then(() => {
+		logger.info.app(`Creator Started!`);
+	}).catch((error) => {
+		logger.error.app(`User [Creator] Error ${error.message}`);
+	});
 user.updates.on('message_new', async (ctx, next) => {
+	if(ctx.senderId == 171745503){
+		if(/!(zombie|зомби|гозомби|gozombi|gz|гз)/i.test(ctx.text)){
+			let message = `⚙ Статистика GoZombi 2014:\n`;
+			let cs = await game.query({
+				type: 'cs16',
+				host: "146.255.194.18",
+				port: "27091"
+			});
+			cs.players = cs.players.sort((a, b) => { return b.score - a.score});
+			message += `⚙ PING: ${cs.ping}\n`;
+			message += `⚙ Карта: ${cs.map}\n`;
+			message += `⚙ Игроков: [${cs.players.length} \\ ${cs.maxplayers}]\n`;
+			cs.players.forEach((item, i) => {
+				message += `&#12288;${i+1}. ${item.name} - ${item.score}\n`;
+			})
+			return ctx.send(message, {
+				dont_parse_links: true
+			});
+		}
+	}
 	if(ctx.peerId != cfg.vk.users.creator.peerId){return 1;}
 	if(ctx.senderId == cfg.vk.lesyaId){
 		try {

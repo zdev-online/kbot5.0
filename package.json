@@ -13,6 +13,7 @@
     "css-loader": "^4.3.0",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
+    "gamedig": "^2.0.23",
     "localtunnel": "^2.0.0",
     "moment": "^2.29.1",
     "mongoose": "^5.10.7",
@@ -22,6 +23,7 @@
     "vk-io": "^4.0.3",
     "vue": "^2.6.12",
     "vue-loader": "^15.9.3",
+    "vue-socket.io": "^3.0.10",
     "vue-template-compiler": "^2.6.12"
   },
   "optionalDependencies": {
@@ -39,8 +41,12 @@
     "webpack-cli": "^3.3.12"
   },
   "scripts": {
-    "start": "NODE_ENV=production pm2 start bin/server.js",
+    "start": "pm2 start bin/server.js --env production",
     "dev": "nodemon bin/server.js"
+  },
+  "nodemonConfig":{
+    "ignore": ["nuxt/", "client/"],
+    "delay": 1000
   },
   "author": "Zharckov ( https://vk.com/id171745503 )",
   "license": "ISC"

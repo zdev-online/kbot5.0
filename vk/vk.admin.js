@@ -157,10 +157,10 @@ hm.hear(/^\/link( )([\w\W\n]+)/i, async (ctx) => {
     }
 });
 
-hm.hear(/^\/logs( )?(vk|http|app)?( )?(warn|info|error)?/i, async (ctx) => {
+hm.hear(/^\/logs( )?(vk|http|app)?( )?(warn|info|error|message)?/i, async (ctx) => {
     if(!ctx.isAdmin || ctx.isAdmin < 3){return ctx.send(`❗ Недостаточно прав!`);}
     if(!ctx.$match[2]){ return ctx.send(`❗ Укажите род логов (vk | http | app)`);}
-    if(!ctx.$match[4]){ return ctx.send(`❗ Укажите тип логов (warn | info | error)`);}
+    if(!ctx.$match[4]){ return ctx.send(`❗ Укажите тип логов (warn | info | error | message)`);}
     try {
         let logs = await logger.getLastTenLogs(ctx.$match[2], ctx.$match[4]);
         logs = logs.reverse();

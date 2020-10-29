@@ -4,6 +4,8 @@ const { HearManager } = require('@vk-io/hear');
 const user = new VK({ token: cfg.vk.users.premium.token });
 const cmd = new HearManager();
 
+logger.info.app(`Premium Started!`);
+
 let timer = 0;
 
 hm.hear(/\/get( )?([\w\W]+)?/i, async (ctx) => {

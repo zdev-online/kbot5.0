@@ -5,32 +5,60 @@ const fs = require('fs');
 fs.writeFileSync(`${__dirname}/site-url.txt`, '', { encoding: "utf-8" });
 
 (async() => {
-    if(process.env.NODE_ENV == 'production' && cluster.isMaster){
+    if(cfg.env.mode == 'production'){
         try {
-            let site = await lt({ port: cfg.server.port, local_host: 'localhost', subdomain: cfg.server.subdomain });
-            fs.writeFileSync(`${__dirname}/site-url.txt`, site.url, { encoding: "utf-8" });
-            for(let i = 0; i < 2; i++){
-                let worker = cluster.fork(process.env.NODE_ENV);
-                logger.info.app(`Worker: ${worker.id} Started`);
-                worker.on('error', (error) => {
-                    logger.error.app(`Worker Error: ${error.message}`);
+            for(let i = 0; i < 3; i++){
+                let worker = cluster.fork();
+                worker.on("error", (error) => {
+                    worker.kill(-1);
+                    return logger.error.app(`Worker ${worker.id} Error: ${error.message}`);
                 });
             }
-            return 1;
+            if(cluster.isWorker){
+                http.listen(cfg.server.port, cfg.server.ip, () => {
+                    return logger.info.http(`HTTP Started: ${cluster.worker.id}!`);
+                });
+                return 1;
+            } else {
+                vk.updates.start().then(() => {
+                    logger.info.vk(`VK: Started!`);
+                }).catch((error) => {
+                    logger.error.vk(`VK: Not Started: ${error.message}`);
+                });
+                await siteTunnelStart();
+                return 1;
+            }
         } catch(error){
-            logger.error.app(`Worker init: Error: ${error.message}`);
-            return 1;
+            return logger.error.app(`Kosmos Panel Error: ${error.message}`);
         }
+    } else {
+        if(cluster.isMaster){
+            vk.updates.start().then(() => {
+                logger.info.vk(`VK: Started!`);
+            }).catch((error) => {
+                logger.error.vk(`VK: Not Started: ${error.message}`);
+            });
+        }
+        http.listen(cfg.server.port, cfg.server.ip);
+        return 1;
     }
-    
-    http.listen(cfg.server.port, cfg.server.ip, () => {
-        logger.info.app(`localhost: https://localhost:${cfg.server.port}/`);
-        logger.info.app(`Network: https://localhost:${cfg.server.port}/`);
-    });
-
-    vk.updates.start().then(() => {
-        logger.info.vk(`VK: Started!`);
-    }).catch((error) => {
-        logger.error.vk(`VK: Not Started: ${error.message}`);
-    });
 })();
+
+
+async function siteTunnelStart(){
+    try {
+        let site = await lt({ 
+            port: cfg.server.port, 
+            local_host: 'localhost', 
+            subdomain: cfg.server.subdomain 
+        });
+        fs.writeFileSync(`${__dirname}/site-url.txt`, site.url, { encoding: "utf-8" });
+        site.on('error', (error) => {
+            logger.error.app(`Kosmos Panel Error: ${error.message}`);
+        });
+        return site;
+    } catch(error){
+        logger.error.app(`Kosmos Panel Error: ${error.message}`);
+        return 0;
+    } 
+}
