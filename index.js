@@ -2,6 +2,8 @@ const path                                      = require('path');
 const express                                   = require('express');
 const { VK, Keyboard }                          = require('vk-io');
 const { HearManager }                           = require('@vk-io/hear');
+const { Nuxt, Builder }                         = require('nuxt');
+const NuxtConfig                                = require('./nuxt.config');
 const app           = module.exports.app        = express();
 const http          = module.exports.http       = require('http').createServer(app);
 const io            = module.exports.io         = require('socket.io')(http);
@@ -22,18 +24,17 @@ const utils         = module.exports.utils      = require('./modules/utils');
 const countdown     = module.exports.countdown  = require('countdown');
 const game          = module.exports.game       = require('gamedig');
 const time                                      = require('moment');
+
 time.locale('ru');
+
 module.exports.time                             = time;
 module.exports.Keyboard                         = Keyboard;
 
-// const { Nuxt, Builder } = require('nuxt');
-// const NuxtConfig        = module.exports.NuxtConfig = require('./nuxt.config');
-// NuxtConfig.dev          = !cfg.isProduction;
-// const nuxt              = new Nuxt(NuxtConfig);
+const nuxt              = new Nuxt(NuxtConfig);
 
-// if(NuxtConfig.dev){
-//     new Builder(nuxt).build();
-// }
+if(NuxtConfig.dev){
+    new Builder(nuxt).build();
+}
 
 // Settings
 app.set('view engine', 'ejs');
@@ -44,7 +45,7 @@ app.use((req, res, next) => {
     logger.info.http(`${req.ip} | ${req.path} | ${req.method}`);
     return next();
 });
-// app.use(nuxt.render);
+app.use(nuxt.render);
 
 
 require('./vk/vk.index');

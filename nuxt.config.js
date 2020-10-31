@@ -1,4 +1,5 @@
 module.exports = {
+    dev: true,
     srcDir: 'client/',
     buildDir: 'nuxt/',
     components: true,

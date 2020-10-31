@@ -1,5 +1,4 @@
 {
-    "isProduction": false,
     "server": {
         "port": 3000,
         "ip": "0.0.0.0",
