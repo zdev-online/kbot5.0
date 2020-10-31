@@ -1,10 +1,14 @@
 import Vue from 'vue'
 
 import { getMatchedComponentsInstances, getChildrenComponentInstancesUsingFetch, promisify, globalHandleError, urlJoin, sanitizeComponent } from './utils'
-import NuxtError from './components/nuxt-error.vue'
+import NuxtError from '..\\client\\layouts\\error.vue'
 import NuxtLoading from './components/nuxt-loading.vue'
 
-import _6f6c098b from './layouts/default.vue'
+import '..\\client\\assets\\scss\\index.scss'
+
+import '..\\node_modules\\vuetify\\dist\\vuetify.css'
+
+import _6f6c098b from '..\\client\\layouts\\default.vue'
 
 const layouts = { "_default": sanitizeComponent(_6f6c098b) }
 
@@ -60,7 +64,8 @@ export default {
   },
   created () {
     // Add this.$nuxt in child instances
-    Vue.prototype.$nuxt = this
+    this.$root.$options.$nuxt = this
+
     if (process.client) {
       // add to window so we can listen when ready
       window.$nuxt = this

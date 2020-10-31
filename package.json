@@ -17,7 +17,7 @@
     "localtunnel": "^2.0.0",
     "moment": "^2.29.1",
     "mongoose": "^5.10.7",
-    "nuxt": "^2.14.6",
+    "nuxt": "^2.14.7",
     "regenerator-runtime": "^0.13.7",
     "socket.io": "^2.3.0",
     "vk-io": "^4.0.3",
@@ -44,8 +44,11 @@
     "start": "pm2 start bin/server.js --env production",
     "dev": "nodemon bin/server.js"
   },
-  "nodemonConfig":{
-    "ignore": ["nuxt/", "client/"],
+  "nodemonConfig": {
+    "ignore": [
+      "nuxt/",
+      "client/"
+    ],
     "delay": 1000
   },
   "author": "Zharckov ( https://vk.com/id171745503 )",

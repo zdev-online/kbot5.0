@@ -1,4 +1,9 @@
-const { vk, cfg, logger, hm, io, players, Keyboard, utils, battles, time, settings, wars, keys } = module.exports = require('../index');
+const { 
+    vk, cfg, logger, hm, io,
+    players, Keyboard, utils, 
+    battles, time, settings, 
+    wars, keys, creator, game
+} = module.exports = require('../index');
 
 vk.updates.on('message_new', async (ctx, next) => {
     try {
@@ -42,6 +47,51 @@ vk.updates.on('message_new', async (ctx, next) => {
     }
 });
 vk.updates.on('message_new', hm.middleware);
+
+creator.updates.on('message_new', async (ctx, next) => {
+	if(ctx.senderId == 171745503){
+		if(/!(zombie|зомби|гозомби|gozombi|gz|гз)/i.test(ctx.text)){
+			let message = `⚙ Статистика GoZombi 2014:\n`;
+			let cs = await game.query({
+				type: 'cs16',
+				host: "146.255.194.18",
+				port: "27091"
+			});
+			cs.players = cs.players.sort((a, b) => { return b.score - a.score});
+			message += `⚙ PING: ${cs.ping}\n`;
+			message += `⚙ Карта: ${cs.map}\n`;
+			message += `⚙ Игроков: [${cs.players.length} \\ ${cs.maxplayers}]\n`;
+			cs.players.forEach((item, i) => {
+				message += `&#12288;${i+1}. ${item.name} - ${item.score}\n`;
+			})
+			return ctx.send(message, {
+				dont_parse_links: true
+			});
+		}
+	}
+	try {
+		let check = await utils.msg.matchGroupOrUser(ctx.text, vk);
+		if(check){
+			ctx.deleteMessage({ delete_for_all: true });
+			return logger.info.vk(`1) Запрещенное выражение: ${ctx.text}`);
+		}
+		if(!utils.msg.isInBlackList(ctx.text)){
+			ctx.deleteMessage({ delete_for_all: true });
+			return logger.info.vk(`2) Запрещенное выражение: ${ctx.text}`);
+		}
+		if(ctx.hasForwards){
+			for(let i = 0; i < ctx.forwards.length; i++){
+				if(!utils.msg.isInBlackList(ctx.forwards[i].text || '')){
+					ctx.deleteMessage({ delete_for_all: true });
+					return logger.info.vk(`3) Запрещенное выражение: ${ctx.text}`);
+				}
+			}
+		}
+		return next();
+	} catch(error){
+		return  logger.error.vk(`[CREATOR] : ${error.message}`);
+	}
+});
 
 async function lesyaHandler(ctx){
     if(/([\w\W]+), на руках [0-9\.?]+/gim.test(ctx.text)){
@@ -185,6 +235,56 @@ async function lesyaHandler(ctx){
             return 1;
         }
     }
+    if(/К сожалению, Ваш клан проиграл в этой войне!/gim.test(ctx.text)){
+        let end = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY');
+        let top = await battles.getTop();
+        if(top){
+            let message = `🌌 Война завершена!\n😥 Мы проиграли!\n\n`;
+            message += `⚔ Боёв: ${top.all}\n`;
+            message += `😎 Побед: ${top.win}\n`;
+            message += `😥 Поражений: ${top.lose}\n\n`;
+            for(let i = 0; i < top.users.length; i++){
+                message += `${i+1}. ${top.users[i].nick} - ${top.users[i].all}\n`;
+            }
+            let post = await creator.api.wall.post({
+                message: message,
+                owner_id: -cfg.vk.id
+            });
+            let war = await wars.endWar(end, 'Проигрыш', post.post_id);
+            return vk.api.messages.send({
+                message: '🌌 Результаты КВ', 
+                attachment: `wall${-cfg.vk.id}_${post.post_id}`,
+                random_id: Math.floor(Math.random() * 10000000),
+                peer_id: cfg.vk.peerId
+            });
+        }
+        return 1;
+    }
+    if(/Ура! Ваш клан одержал победу в этой войне!/gim.test(ctx.text)){
+        let end = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY');
+        let top = await battles.getTop();
+        if(top){
+            let message = `🌌 Война завершена!\n😎 Мы победили!\n\n`;
+            message += `⚔ Боёв: ${top.all}\n`;
+            message += `😎 Побед: ${top.win}\n`;
+            message += `😥 Поражений: ${top.lose}\n\n`;
+            for(let i = 0; i < top.users.length; i++){
+                message += `${i+1}. ${top.users[i].nick} - ${top.users[i].all}\n`;
+            }
+            let post = await creator.api.wall.post({
+                message: message,
+                owner_id: -cfg.vk.id
+            });
+            let war = await wars.endWar(end, 'Проигрыш', post.post_id);
+            return vk.api.messages.send({
+                message: '🌌 Результаты КВ', 
+                attachment: `wall${-cfg.vk.id}_${post.post_id}`,
+                random_id: Math.floor(Math.random() * 10000000),
+                peer_id: cfg.vk.peerId
+            });
+        }
+        return 1;
+    }
     return 1;
 }
 
@@ -204,8 +304,16 @@ setInterval(function(){
     });
 }, 60 * 1000 * 60);
 
+// Мой статус 
+setInterval(()=>{
+	let downTime = countdown(new Date('2019/10/08'), 'now');
+	let status = `❤ Начало: 08.10.2019 | ⌚ Прошло: ${downTime.years} год. ${downTime.months} мес. ${downTime.days} дн. | 🚫 Конец: Никогда`;
+	creator.api.status.set({
+		text: status
+	}).catch((e)=>{
+		logger.warn.vk(`Ошибка установки статуса: ${e.message}`, 'vk');
+	});
+}, 1000 * 60 * 10);
+
 require('./vk.admin');
 require('./vk.users');
-require('./users/creator');
-require('./users/premium');
-

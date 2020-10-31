@@ -1,9 +1,13 @@
-const { hm, cfg, logger, players, io, vk, Keyboard, settings, keys, battles, utils } = require('./vk.index');
-const fs = require('fs');
-const os = require('os');
+const { 
+    hm, cfg, logger, players, io,
+    vk, Keyboard, settings, keys,
+    battles, utils, creator, promo,
+    premium
+}           = require('./vk.index');
+const fs    = require('fs');
+const os    = require('os');
 
-const time = require('moment');
-time.locale('ru');
+let premium_cmd_timer = 0;
 
 hm.hear(/^\/ad( )?([\w\W]+)?/i, async (ctx) => {
     if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`); }
@@ -254,9 +258,86 @@ hm.hear(/^\/stats( )?([0-9\.?]+)?/i, async (ctx) => {
     }
 });
 
+hm.hear(/^\/gcheck/i, async (ctx) => {
+	if(!ctx.isAdmin || ctx.isAdmin < 4){return ctx.send(`❗ Недостаточно прав!`);}
+	try {
+		let kicked = [];
+		let group = await vk.api.groups.getMembers({offset: 0, count: 1000, group_id: cfg.vk.id});
+		let chat = await vk.api.messages.getConversationMembers({peer_id: cfg.vk.peerId});
+		for(let i = 0; i < group.items.length; i++){
+			let check = utils.findOBJ(chat.profiles, group.items[i], 'id');
+			if(!check){
+				kicked.push(group.items[i]);
+				creator.api.groups.ban({
+					group_id: cfg.vk.id,
+					owner_id: group.items[i],
+					comment: `Ты не в беседе клана! Пиши: vk.com/id171745503`,
+					comment_visible: true
+				});
+			}
+		}
+		let message = `🚫 Кикнуты из группы: ${kicked.length}\n`;
+		for(let i = 0; i < kicked.length; i++){
+			let [user] = await vk.api.users.get({user_ids: kicked[i]});
+			message += `> [id${user.id}|${user.first_name} ${user.last_name}]\n`;
+		}
+		logger.info.vk(`Из группы кикнуто ${kicked.length} человек!`);
+		return ctx.send(message);
+	} catch(error){
+		logger.error.vk(`[/gcheck] ${error.message}`);
+		return ctx.send(`❗ Произошла ошибка!`);
+	}
+});
+
+hm.hear(/\/postpromo( )?(1kkk(_|-)[\w\W]+)?/i, async (ctx) => {
+	if(!ctx.isAdmin || ctx.isAdmin < 2){return ctx.send(`❗ Недостаточно прав!`);}
+	if(ctx.peerType != 'user'){return ctx.send(`❗ Использовать команду можно только в ЛС Боту`);}
+	if(!ctx.$match[2]){return ctx.send(`❗ Укажите промокод!`);}
+	try {
+		let check = await promo.add(`${ctx.vk.first_name} ${ctx.vk.last_name}`, ctx.$match[2]);
+		if(!check){return ctx.send(`❗ Промокод уже существует!`);}
+		let post = await creator.api.call('wall.post', {
+			owner_id: -cfg.vk.id,
+			message: 'Новый промокод! Смотрим комменты!',
+			poster_bkg_id: utils.randomInteger(1, 30)
+		});
+		await vk.api.wall.createComment({
+			post_id: post.post_id,
+			owner_id: -cfg.vk.id,
+			message: ctx.$match[2]
+		});
+		return ctx.send(`❗ Новый промокод`, {
+            peer_id: cfg.vk.peerId,
+			keyboard: Keyboard.keyboard([ Keyboard.textButton({ label: `Промо ${ctx.$match[2]}`,color: "positive" }) ]).inline(true)
+		});
+	} catch (error) {
+		logger.error.vk(`[/postpromo] : ${error.message}`);
+		return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте разработчику код: post_promo`);
+	}
+});
+
 hm.hear(/^\/keys/i, (ctx) => {
     if(!ctx.isAdmin || ctx.isAdmin < 3){return ctx.send(`❗ Недостаточно прав!`)}
     return ctx.send(`⚙ Клавиатура обновлена!`, {
         keyboard: Keyboard.keyboard(keys.chat)
+    });
+});
+
+hm.hear(/\/get( )?([\w\W]+)?/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 3){
+        return ctx.send(`❗ Недостаточно прав!`);
+    }
+    if(premium_cmd_timer >= new Date().getTime()){
+        let time_to_write = (premium_cmd_timer - new Date().getTime())/1000;
+        return ctx.send(`❗ Использовать премиум команды можно раз в 10 сек!\n❗ Осталось: ${time_to_write > 0 ? time_to_write : 0} сек`);
+    }
+    if(!ctx.$match[2]){
+        return ctx.send(`❗ Укажите ID или ссылку!`);
+    }
+    premium_cmd_timer = new Date().getTime() + 10 * 1000;
+    return premium.api.messages.send({
+        message :   `/гет ${ctx.$match[2]}`,
+        peer_id:    cfg.vk.users.premium.peerId,
+        random_id:  Math.floor(Math.random()*100000000)
     });
 });

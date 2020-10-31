@@ -1,4 +1,8 @@
-const { hm, cfg, logger, players, io, time, vk, settings, battles } = require('./vk.index');
+const { 
+    hm, cfg, logger, players, io,
+    time, vk, settings, battles, 
+    creator 
+} = require('./vk.index');
 const fs = require('fs');
 
 // 👥 - 1 Уровень
@@ -26,6 +30,16 @@ CMDS += `🔥 - Уровень 2 и выше\n`;
 CMDS += `🌀 - Уровень 3 и выше\n`;
 CMDS += `🌌 - Уровень 4 и выше\n`;
 CMDS += `⚙ - Разработчик\n`;
+
+hm.hear(/@(all|online|онлайн|все)/gim, async (ctx) => {
+	try {
+		// await creaor.deleteMessage({delete_for_all: true});
+		return ctx.send(`🌌 Используйте: /ad | /rob | /war`);
+	} catch(error) {
+		logger.error.vk(`[@all @online] >> ${error.message}`);
+		return ctx.send(`❗ Произошла ошибка! Отправьте код разработчику: notify_delete`);
+	}
+});
 
 hm.hear(/^\/cmd/i, (ctx) => {
     return ctx.send(CMDS);
