@@ -30,6 +30,8 @@ CMDS += `🌀 - Уровень 3 и выше\n`;
 CMDS += `🌌 - Уровень 4 и выше\n`;
 CMDS += `⚙ - Разработчик\n`;
 
+fs.writeFileSync('./README.md', `#KBot 5.0\n\n${CMDS}`, {encoding: 'utf-8'});
+
 hm.hear(/@(all|online|онлайн|все)/gim, async (ctx) => {
 	try {
 		// await creaor.deleteMessage({delete_for_all: true});
