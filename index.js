@@ -16,6 +16,8 @@ const utils         = module.exports.utils      = require('./modules/utils');
 const countdown     = module.exports.countdown  = require('countdown');
 const game          = module.exports.game       = require('gamedig');
 const time                                      = require('moment');
+const LEVELS        = module.exports.LEVELS     = ['👥', '🔥', '🌀', '🌌', '⚙'];
+
 
 time.locale('ru');
 

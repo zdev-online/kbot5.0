@@ -1,7 +1,7 @@
 const { 
     hm, cfg, logger, players,
     time, vk, settings, battles, 
-    creator 
+    creator, LEVELS
 } = require('./vk.index');
 const fs = require('fs');
 
@@ -10,7 +10,6 @@ const fs = require('fs');
 // 🌀 - 3 Уровень
 // 🌌 - 4 Уровень
 // ⚙ - Разработчик
-const LEVELS = ['👥', '🔥', '🌀', '🌌', '⚙'];
 let CMD = JSON.parse(fs.readFileSync(`./commands.json`, { encoding: "utf-8"}));
 CMD = CMD.sort((a, b) => {
     return a.level - b.level;

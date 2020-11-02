@@ -131,7 +131,6 @@ module.exports = class Players {
             }
         });
     }
-
     updateBattleStats(options){
         return new Promise(async (ok, err) => {
             try {
@@ -145,6 +144,16 @@ module.exports = class Players {
                 } else {
                     return ok(false);
                 }
+            } catch(error){
+                return err(error);
+            }
+        });
+    }
+    getAll(){
+        return new Promise(async (ok, err) => {
+            try {
+                let users = await User.find({});
+                return ok(users ? users : false);
             } catch(error){
                 return err(error);
             }

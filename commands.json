@@ -166,5 +166,19 @@
         "desc": "Клановые войны",
         "level": 1,
         "for_reg": true 
+    },
+    {
+        "text": "/restart",
+        "argv": false,
+        "desc": "Перезагрузка бота",
+        "level": 4,
+        "for_reg": true
+    },
+    {
+        "text": "/player",
+        "argv": "*link",
+        "desc": "Инфо. об игроке",
+        "level": 2,
+        "for_reg": true
     }
 ]

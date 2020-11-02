@@ -2,7 +2,7 @@ const {
     hm, cfg, logger, players,
     vk, Keyboard, settings, keys,
     battles, utils, creator, promo,
-    premium, time, wars
+    premium, time, wars, LEVELS
 }           = require('./vk.index');
 const fs    = require('fs');
 const os    = require('os');
@@ -350,6 +350,63 @@ hm.hear(/\/restart/i, (ctx) => {
     return exec('pm2 restart 0');
 });
 
+hm.hear(/\/player( )?([\w\W]+)?/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 2){ return ctx.send(`❗ Недостаточно прав!`);}
+    if(!ctx.$match[2]){return ctx.send(`❗ Введите VK ссылка или ID!`)}
+    try {
+        ctx.$match[2] = ctx.$match[2].replace(/http(s)?:\/\/vk.com\//, '');
+        ctx.$match[2] = ctx.$match[2].replace('@', '');
+        ctx.$match[2] = ctx.$match[2].replace(/\[/gim, '').replace(/\|[\w\W]+\]/gim, '');
+        let info = await vk.api.utils.resolveScreenName({screen_name: ctx.$match[2]});
+        if(!info){return ctx.send(`❗ Вы ввели неверную ссылку!`);}
+        if(info.type != 'user'){ return ctx.send(`❗ У бота не может быть профиля!`);}
+        let user = await players.get(info.object_id);
+        if(!user){return ctx.send(`⚙ [id${info.object_id}|Игрок] не зарегистрован в боте!`);}
+        let message = `🌌 Профиль игрока ${ctx.info.nick}\n`;
+        message += `⚙ VK: ${user.vkId}\n`;
+        message += `⚙ Lesya: ${user.lesya}\n`;
+        message += `${LEVELS[user.level]} Уровень: ${user.level}\n\n`;
+        message += `⚔ Бои (Все время):\n`;
+        message += `&#12288;👊🏻 Всего: ${user._all}\n`;
+        message += `&#12288;😎 Побед: ${user._win}\n`;
+        message += `&#12288;😥 Проигрышей: ${user._lose}\n\n`;
+        let u_battle = await battles.getUser(user.nick);
+        if(u_battle.data){
+            message += `⚔ Бои: (За сегодня):\n`;
+            message += `&#12288;👊🏻 Всего: ${u_battle.data.all}\n`;
+            message += `&#12288;😎 Побед: ${u_battle.data.win}\n`;
+            message += `&#12288;😥 Проигрышей: ${u_battle.data.lose}\n`;
+        } else {
+            message += `⚔ Бои: (За сегодня):\n`;
+            if(u_battle.code == 'USER_NOT_FOUND')
+                message += `&#12288;🚫 Сегодня игрок не играл!`;
+            if(u_battle.code == 'DATE_NOT_FOUND')
+                message += `&#12288;🚫 Сегодня не было боёв!`;
+        }
+        return ctx.send(message);
+    } catch(error){
+        logger.error.vk(`[/player]: ${error.message}`);
+        return ctx.send(`Произошла ошибка!\nОтправьте код разработчику: player_get_error`);
+    }
+});
+
+hm.hear(/\/users/i, async (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 2){ return ctx.send(`❗ Недостаточно прав!`);}
+    try {
+        let users = await players.getAll();
+        if(!users){return ctx.send(`❗ Нет зарегистрованных игроков!`);}
+        let message = `⚙ Зарегистрованные игроки:\n\n`;
+        for(let i = 0; i < users.length; i++){
+            let [info] = await vk.api.users.get({user_ids: users[i].vkId});
+            message += `${i+1}. ${info.first_name[0]}. ${info.last_name} | ${users[i].nick} | ${users[i].lesya}\n`;
+        }
+        return ctx.send(message);
+    } catch(error){
+        logger.error.vk(`[/users]: ${error.message}`);
+        return ctx.send(`Произошла ошибка!\nОтправьте код разработчику: users_get_error`);
+    }
+});
+
 hm.hear(/\/wars/i, async (ctx) => {
     if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`); }
     try { 
@@ -366,6 +423,7 @@ hm.hear(/\/wars/i, async (ctx) => {
             return ctx.send(`❗ Клановых войн не найдено!`)
         }
     } catch(error) {
+        logger.error.vk(`[/wars]: ${error.message}`);
         return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте код разработчику: war_get_error`);
     }
 });
