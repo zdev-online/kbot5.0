@@ -49,7 +49,7 @@ module.exports = class Wars {
             }
         });
     }
-    endWar(end, result, postId){
+    endWar(end, result){
         return new Promise(async (ok, err) => {
             try {
                 let date = time().format('DD.MM.YYYY');
@@ -58,7 +58,6 @@ module.exports = class Wars {
                     if(!today.result){
                         today.result = result;
                         today.end = end;
-                        today.postId = postId;
                         await today.save();
                         return ok(today);
                     } else {
@@ -72,10 +71,10 @@ module.exports = class Wars {
             }
         });
     }
-    getWarsByDate(date=time().format('DD.MM.YYYY')){
+    getWars(){
         return new Promise(async (ok, err) => {
             try {
-                let war = await War.findOne({date});
+                let war = await War.find();
                 return ok(war ? war : false);
             } catch (error) {
                 return err(error);

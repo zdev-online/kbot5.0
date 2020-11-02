@@ -1,11 +1,12 @@
 const { 
-    hm, cfg, logger, players, io,
+    hm, cfg, logger, players,
     vk, Keyboard, settings, keys,
     battles, utils, creator, promo,
-    premium
+    premium, time, wars
 }           = require('./vk.index');
 const fs    = require('fs');
 const os    = require('os');
+const exec  = require('child_process').exec;
 
 let premium_cmd_timer = 0;
 
@@ -51,7 +52,7 @@ hm.hear(/^\/rob/i, async (ctx) => {
     }
 });
 
-hm.hear(/^\/war/i, async (ctx) => {
+hm.hear(/^\/war$/i, async (ctx) => {
     if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`); }
     try {
         let message = ``;
@@ -340,4 +341,31 @@ hm.hear(/\/get( )?([\w\W]+)?/i, async (ctx) => {
         peer_id:    cfg.vk.users.premium.peerId,
         random_id:  Math.floor(Math.random()*100000000)
     });
+});
+
+hm.hear(/\/restart/i, (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 4){
+        return ctx.send(`❗ Недостаточно прав!`);
+    }
+    return exec('pm2 restart 0');
+});
+
+hm.hear(/\/wars/i, async (ctx) => {
+    if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`); }
+    try { 
+        let data = await wars.getWars(); 
+        if(data) {
+            let message = `⚔ Клановые войны:\n`;
+            message += `✅ - Победа\n🚫-Поражение\n\n`;
+            for(let i = 0; i < data.length; i++){
+                message += (data[i].result == 'Победа') ? '✅ | ' : '🚫 | ';
+                message += `${data[i].date} | ${data[i].enemy}\n`;
+            }
+            return ctx.send(message);
+        } else {
+            return ctx.send(`❗ Клановых войн не найдено!`)
+        }
+    } catch(error) {
+        return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте код разработчику: war_get_error`);
+    }
 });

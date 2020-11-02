@@ -1,5 +1,5 @@
 const { 
-    hm, cfg, logger, players, io,
+    hm, cfg, logger, players,
     time, vk, settings, battles, 
     creator 
 } = require('./vk.index');

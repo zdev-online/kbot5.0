@@ -4,51 +4,26 @@
   "description": "KBot 5.0 - Bot Lesya - Helper",
   "main": "bin/server.js",
   "dependencies": {
-    "@nuxtjs/axios": "^5.12.2",
     "@vk-io/hear": "^1.0.2",
     "bcrypt": "^5.0.0",
     "colors": "^1.4.0",
-    "core-js": "^3.6.5",
     "countdown": "^2.6.0",
     "css-loader": "^4.3.0",
-    "ejs": "^3.1.5",
-    "express": "^4.17.1",
     "gamedig": "^2.0.23",
-    "localtunnel": "^2.0.0",
     "moment": "^2.29.1",
     "mongoose": "^5.10.7",
-    "nuxt": "^2.14.7",
-    "regenerator-runtime": "^0.13.7",
-    "socket.io": "^2.3.0",
-    "vk-io": "^4.0.3",
-    "vue": "^2.6.12",
-    "vue-loader": "^15.9.3",
-    "vue-socket.io": "^3.0.10",
-    "vue-template-compiler": "^2.6.12"
+    "vk-io": "^4.0.3"
   },
   "optionalDependencies": {
     "fsevents": "*"
   },
-  "devDependencies": {
-    "@nuxtjs/style-resources": "^1.0.0",
-    "@nuxtjs/vuetify": "^1.11.2",
-    "deepmerge": "^4.2.2",
-    "node-sass": "^4.14.1",
-    "sass": "^1.26.11",
-    "sass-loader": "^10.0.3",
-    "vuetify": "^2.3.12",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.12"
-  },
+  "devDependencies": {},
   "scripts": {
     "start": "pm2 start bin/server.js --env production",
     "dev": "nodemon bin/server.js"
   },
   "nodemonConfig": {
-    "ignore": [
-      "nuxt/",
-      "client/"
-    ],
+    "ignore": [],
     "delay": 1000
   },
   "author": "Zharckov ( https://vk.com/id171745503 )",

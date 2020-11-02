@@ -1,12 +1,16 @@
 const { 
-    vk, cfg, logger, hm, io,
+    vk, cfg, logger, hm,
     players, Keyboard, utils, 
     battles, time, settings, 
-    wars, keys, creator, game
+    wars, keys, creator, game,
+    countdown
 } = module.exports = require('../index');
+
+let TOTAL_PING = 0;
 
 vk.updates.on('message_new', async (ctx, next) => {
     try {
+        TOTAL_PING = (TOTAL_PING + ((time() - time(ctx.createdAt*1000))/1000))/2;
         // Если сообщение отправил пользователь
         if(ctx.peerType == 'chat' && ctx.peerId != cfg.vk.peerId){
             logger.info.vk(`Отправлена реклама: SID: ${ctx.senderId} PID: ${ctx.peerId}`);
@@ -216,7 +220,11 @@ async function lesyaHandler(ctx){
                 let message = `🌌 ${info.nick}, бой засчитан!\n`;
                 message += `👊🏻 Всего: ${data.all}\n`;
                 message += (data.user_norm) ? `✅ Норма [${data.norm}]: Выполнена` : `🚫 Норма [${data.norm}]: Не выполенена!`; 
-                return ctx.send(message);
+                return ctx.send(message, {
+                    keyboard: Keyboard.keyboard([
+                        Keyboard.textButton({label: 'Бой', color: 'positive'})
+                    ]).inline(true)
+                });
             }
         } catch(error){
             logger.error.vk(`Battle end: ${error.message}`);
@@ -237,53 +245,21 @@ async function lesyaHandler(ctx){
     }
     if(/К сожалению, Ваш клан проиграл в этой войне!/gim.test(ctx.text)){
         let end = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY');
-        let top = await battles.getTop();
-        if(top){
-            let message = `🌌 Война завершена!\n😥 Мы проиграли!\n\n`;
-            message += `⚔ Боёв: ${top.all}\n`;
-            message += `😎 Побед: ${top.win}\n`;
-            message += `😥 Поражений: ${top.lose}\n\n`;
-            for(let i = 0; i < top.users.length; i++){
-                message += `${i+1}. ${top.users[i].nick} - ${top.users[i].all}\n`;
-            }
-            let post = await creator.api.wall.post({
-                message: message,
-                owner_id: -cfg.vk.id
-            });
-            let war = await wars.endWar(end, 'Проигрыш', post.post_id);
-            return vk.api.messages.send({
-                message: '🌌 Результаты КВ', 
-                attachment: `wall${-cfg.vk.id}_${post.post_id}`,
-                random_id: Math.floor(Math.random() * 10000000),
-                peer_id: cfg.vk.peerId
-            });
-        }
-        return 1;
+        await wars.endWar(end, 'Проигрыш');
+        return vk.api.messages.send({
+            message: '🌌 КВ Зарегистровано: Проигрыш', 
+            random_id: Math.floor(Math.random() * 10000000),
+            peer_id: cfg.vk.peerId
+        });
     }
     if(/Ура! Ваш клан одержал победу в этой войне!/gim.test(ctx.text)){
-        let end = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY');
-        let top = await battles.getTop();
-        if(top){
-            let message = `🌌 Война завершена!\n😎 Мы победили!\n\n`;
-            message += `⚔ Боёв: ${top.all}\n`;
-            message += `😎 Побед: ${top.win}\n`;
-            message += `😥 Поражений: ${top.lose}\n\n`;
-            for(let i = 0; i < top.users.length; i++){
-                message += `${i+1}. ${top.users[i].nick} - ${top.users[i].all}\n`;
-            }
-            let post = await creator.api.wall.post({
-                message: message,
-                owner_id: -cfg.vk.id
-            });
-            let war = await wars.endWar(end, 'Проигрыш', post.post_id);
-            return vk.api.messages.send({
-                message: '🌌 Результаты КВ', 
-                attachment: `wall${-cfg.vk.id}_${post.post_id}`,
-                random_id: Math.floor(Math.random() * 10000000),
-                peer_id: cfg.vk.peerId
-            });
-        }
-        return 1;
+        let end = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY'); 
+        await wars.endWar(end, 'Проигрыш');
+        return vk.api.messages.send({
+            message: '🌌 КВ Зарегистровано: Победа', 
+            random_id: Math.floor(Math.random() * 10000000),
+            peer_id: cfg.vk.peerId
+        });
     }
     return 1;
 }
@@ -292,7 +268,8 @@ async function lesyaHandler(ctx){
 setInterval(function(){
     let group_message = `❤ Не забудь подписаться на нашу группу!\n`;
     group_message += `👀 Там ты информацию о боте, новости клана, промокоды!\n`
-    group_message +=`🔔 Чтобы не пропустить ничего важного, включай уведомление о новых записях`;
+    group_message +=`🔔 Чтобы не пропустить ничего важного, включай уведомление о новых записях\n\n`;
+    group_message += `⚙ Общий пинг: ${TOTAL_PING.toFixed(3)} сек`;
     vk.api.messages.send({
         message: group_message,
         peer_id: cfg.vk.peerId,

@@ -1,10 +1,17 @@
 module.exports = {
+    ssr: true,
     dev: true,
+    target: 'server',
     srcDir: 'client/',
     buildDir: 'nuxt/',
     components: true,
     telemetry: false,
     buildModules: ['@nuxtjs/vuetify'],
+    vuetify: {
+        theme: {
+            dark: true
+        }
+    },
     modules: [],
     head: {
         title: 'Kosmos',

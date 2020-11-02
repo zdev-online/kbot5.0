@@ -1,9 +1,6 @@
 {
     "server": {
-        "port": 3000,
-        "ip": "0.0.0.0",
-        "db_url": "mongodb://localhost:27017/kosmos",
-        "subdomain": "kosmos"
+        "db_url": "mongodb://localhost:27017/kosmos"
     },
     "vk": {
         "token": "215b570e5872647320ab441b1f998213b9f125537cc761ed87c0f6ac515b18cfdb397720cb55256dd43e7",

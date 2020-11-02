@@ -159,5 +159,12 @@
         "desc": "Расчёт питомцев",
         "level": 0,
         "for_reg": false 
+    },
+    {
+        "text": "/wars",
+        "argv": false,
+        "desc": "Клановые войны",
+        "level": 1,
+        "for_reg": true 
     }
 ]
