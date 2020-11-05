@@ -40,7 +40,7 @@ module.exports = class Promo {
         return new Promise(async (ok, err) => {
             try {
                 let promos = await Promocode.find();
-                return ok(promos ? promos : false)
+                return ok(promos.length ? promos : false)
             } catch (error) {
                 return err(error);
             }

@@ -52,14 +52,13 @@ module.exports = class Wars {
     endWar(end, result){
         return new Promise(async (ok, err) => {
             try {
-                let date = time().format('DD.MM.YYYY');
-                let today = await War.findOne({ date });
-                if(today){
-                    if(!today.result){
-                        today.result = result;
-                        today.end = end;
-                        await today.save();
-                        return ok(today);
+                let war = await War.findOne({ result: '' });
+                if(war){
+                    if(!war.result){
+                        war.end = end;
+                        war.result = result;
+                        await war.save();
+                        return ok(war);
                     } else {
                         return ok(false);
                     }

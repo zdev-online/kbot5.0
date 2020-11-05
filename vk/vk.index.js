@@ -3,7 +3,7 @@ const {
     players, Keyboard, utils, 
     battles, time, settings, 
     wars, keys, creator, game,
-    countdown
+    countdown, newUsers
 } = module.exports = require('../index');
 
 let TOTAL_PING = 0;
@@ -51,6 +51,35 @@ vk.updates.on('message_new', async (ctx, next) => {
     }
 });
 vk.updates.on('message_new', hm.middleware);
+vk.updates.on('chat_invite_user_by_link', async (ctx, next) => {
+    try {
+        let user_id = ctx.senderId;
+        if(user_id < 0) { return vk.api.messages.removeChatUser({ chat_id: ctx.chatId, member_id: user_id}); }
+        await newUsers.add(user_id);  
+        ctx.send(`🌌 Добро пожаловать в 𝓚𝖔𝝇𝖒𝖔𝝇!\n⏳ У вас есть 5 минут, чтобы войти в клан!\n❗ Далее вы будете кикнуты!`, {
+            keyboard: Keyboard.keyboard([Keyboard.textButton({label: 'Клан войти 26274', color: 'positive'})]).inline(true)
+        }); 
+        return next();
+    } catch (error) {
+        return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте код разработчику: new_user_add`);
+    }
+});
+vk.updates.on('chat_invite_user', async (ctx, next) => {
+    try {
+        let user_id = ctx.eventMemberId;
+        if(user_id < 0) { return vk.api.messages.removeChatUser({ chat_id: ctx.chatId, member_id: user_id}); }
+        await newUsers.add(user_id);
+        ctx.send(`🌌 Добро пожаловать в 𝓚𝖔𝝇𝖒𝖔𝝇!\n⏳ У вас есть 5 минут, чтобы войти в клан!\n❗ Далее вы будете кикнуты!`, {
+            keyboard: Keyboard.keyboard([Keyboard.textButton({label: 'Клан войти 26274', color: 'positive'})]).inline(true)
+        }); 
+        return next();
+    } catch (error) {
+        return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте код разработчику: new_user_add`);
+    }
+});
+vk.updates.on('chat_kick_user', async (ctx, next) => {
+    return next();
+});
 
 creator.updates.on('message_new', async (ctx, next) => {
 	if(ctx.senderId == 171745503){
@@ -245,21 +274,29 @@ async function lesyaHandler(ctx){
     }
     if(/К сожалению, Ваш клан проиграл в этой войне!/gim.test(ctx.text)){
         let end = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY');
-        await wars.endWar(end, 'Проигрыш');
-        return vk.api.messages.send({
-            message: '🌌 КВ Зарегистровано: Проигрыш', 
-            random_id: Math.floor(Math.random() * 10000000),
-            peer_id: cfg.vk.peerId
-        });
+        let war = await wars.endWar(end, 'Проигрыш');
+        if(war){
+            return vk.api.messages.send({
+                message: '🌌 КВ Зарегистровано: Проигрыш', 
+                random_id: Math.floor(Math.random() * 10000000),
+                peer_id: cfg.vk.peerId
+            });
+        } else {
+            return 1;
+        }
     }
     if(/Ура! Ваш клан одержал победу в этой войне!/gim.test(ctx.text)){
         let end = time(ctx.createdAt*1000).format('HH:mm:ss, DD.MM.YYYY'); 
-        await wars.endWar(end, 'Проигрыш');
-        return vk.api.messages.send({
-            message: '🌌 КВ Зарегистровано: Победа', 
-            random_id: Math.floor(Math.random() * 10000000),
-            peer_id: cfg.vk.peerId
-        });
+        let war = await wars.endWar(end, 'Победа');
+        if(war){
+            return vk.api.messages.send({
+                message: '🌌 КВ Зарегистровано: Победа', 
+                random_id: Math.floor(Math.random() * 10000000),
+                peer_id: cfg.vk.peerId
+            });
+        } else {
+            return 1;
+        }
     }
     return 1;
 }
@@ -291,6 +328,36 @@ setInterval(()=>{
 		logger.warn.vk(`Ошибка установки статуса: ${e.message}`, 'vk');
 	});
 }, 1000 * 60 * 10);
+
+// Проверка наличия новых игроков и кик, если время встпуления вышло!
+setInterval(async () => {
+    try {
+        let new_users = await newUsers.getAll();
+        if(!new_users){return 1;}
+        let chat_users = await vk.api.messages.getConversationMembers({peer_id: cfg.vk.peerId});
+        for(let i = 0; i < new_users.length; i++){
+            let inChat = utils.findOBJ(chat_users.profiles, new_users[i].vkId, 'id');
+            if(!inChat){
+                await newUsers.delete(new_users[i].vkId);
+                continue;
+            }
+            if(new_users[i].kickTime <= new Date().getTime()){
+                await vk.api.messages.send({
+                    peer_id: cfg.vk.peerId,
+                    message: `❗ [id${new_users[i].vkId}|Вы не успели войти в клан], поэтому вас кикнет бот!`,
+                    random_id: Math.floor(Math.random() * 100000),
+                });
+                vk.api.messages.removeChatUser({
+                    chat_id: cfg.vk.chatId,
+                    member_id: new_users[i].vkId
+                });
+                continue;
+            }
+        }
+    } catch(error){
+        return logger.error.vk(`Ошибка check_new_users: ${error.message}`);
+    }
+}, 10000);
 
 require('./vk.admin');
 require('./vk.users');

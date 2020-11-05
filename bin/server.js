@@ -1,9 +1,4 @@
-const { 
-    cfg, vk, logger, creator
-} = require('../index');
-const fs = require('fs');
-
-fs.writeFileSync(`${__dirname}/site-url.txt`, '', { encoding: "utf-8" });
+const { cfg, vk, logger, creator } = require('../index');
 
 (async() => {
     vk.updates.start().then(()=>{

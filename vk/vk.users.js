@@ -1,7 +1,7 @@
 const { 
     hm, cfg, logger, players,
     time, vk, settings, battles, 
-    creator, LEVELS
+    creator, LEVELS, newUsers, promo
 } = require('./vk.index');
 const fs = require('fs');
 
@@ -191,3 +191,35 @@ hm.hear(/^\/id( )?([0-9]+)?/i, async (ctx) => {
     }
 });
 
+hm.hear(/^\/promo/i, async (ctx) => {
+    let promos = await promo.getAll();
+    if(!promos){ return ctx.send(`❗ Промокодов не найдено!`);}
+    let message = `❤ Промокоды на 1ккк:\n\n`;
+    for(let i = 0; i < promos.length; i++){
+        message += `${promos[i].from} - ${promos[i].text}\n`;
+    }
+    return ctx.send(message);
+});
+
+hm.hear(/^\/top( )?([0-9\.?]+)?/i, async (ctx) => {
+    try {
+        let timeText = ctx.$match[2] ? ctx.$match[2] : 'сегодня';
+        let top = await battles.getTop(ctx.$match[2] || false);
+        if(!top){ return ctx.send(`❗ За ${timeText} боёв не найдено!`); }
+        let message = `⚔ Топ боёв за ${timeText}:\n\n`;
+        for(let i = 0; i < top.users.length; i++){
+            message += `${i+1}. ${top.users[i].nick} - ${top.users[i].all}\n`;
+        }
+        return ctx.send(message);
+    } catch(error){
+        logger.error.vk(`[/top]: ${error.message}`);
+        return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте код разработчику: get_top_error`);
+    }
+});
+
+hm.hear(/клан (войти|вступить) 26274/i, async (ctx) => {
+    let check = await newUsers.get(ctx.senderId);
+    if(!check){return 1;}
+    await newUsers.delete(ctx.senderId);
+    return ctx.send(`⚙ [id${ctx.senderId}|${ctx.vk.first_name}] вы успели войти в клан!`);
+});

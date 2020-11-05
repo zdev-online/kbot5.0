@@ -12,6 +12,7 @@ const settings      = module.exports.settings   = new (require('./database/model
 const battles       = module.exports.battles    = new (require('./database/models/battles'))();
 const promo         = module.exports.promo      = new (require('./database/models/promo'))();
 const wars          = module.exports.wars       = new (require('./database/models/wars'))();
+const newUsers      = module.exports.newUsers   = new (require('./database/models/new_users'))();
 const utils         = module.exports.utils      = require('./modules/utils');
 const countdown     = module.exports.countdown  = require('countdown');
 const game          = module.exports.game       = require('gamedig');
@@ -25,3 +26,4 @@ module.exports.time                             = time;
 module.exports.Keyboard                         = Keyboard;
 
 require('./vk/vk.index');
+

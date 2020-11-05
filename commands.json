@@ -7,6 +7,13 @@
         "for_reg": false
     },
     {
+        "text": "/promo",
+        "argv": false,
+        "desc": "Промокоды на 1ккк",
+        "level": 0,
+        "for_reg": false
+    },
+    {
         "text": "/register",
         "argv": "*lesyaId | lesyaNick",
         "desc": "Регистрация в нашем боте!",
@@ -180,5 +187,26 @@
         "desc": "Инфо. об игроке",
         "level": 2,
         "for_reg": true
+    },
+    {
+        "text": "/new",
+        "argv": false,
+        "desc": "Новые игроки",
+        "level": 1,
+        "for_reg": true
+    },
+    {
+        "text": "/unnew",
+        "argv": "*link",
+        "desc": "Убрать участника из списка невошедших",
+        "level": 1,
+        "for_reg": true
+    },
+    {
+        "text": "/top",
+        "argv": "$date",
+        "desc": "Топ за дату\\сегодня",
+        "level": 0,
+        "for_reg": false
     }
 ]

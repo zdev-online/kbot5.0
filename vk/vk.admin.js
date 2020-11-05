@@ -2,7 +2,8 @@ const {
     hm, cfg, logger, players,
     vk, Keyboard, settings, keys,
     battles, utils, creator, promo,
-    premium, time, wars, LEVELS
+    premium, time, wars, LEVELS,
+    newUsers
 }           = require('./vk.index');
 const fs    = require('fs');
 const os    = require('os');
@@ -352,7 +353,7 @@ hm.hear(/\/restart/i, (ctx) => {
 
 hm.hear(/\/player( )?([\w\W]+)?/i, async (ctx) => {
     if(!ctx.isAdmin || ctx.isAdmin < 2){ return ctx.send(`❗ Недостаточно прав!`);}
-    if(!ctx.$match[2]){return ctx.send(`❗ Введите VK ссылка или ID!`)}
+    if(!ctx.$match[2]){return ctx.send(`❗ Введите VK ссылку или ID!`)}
     try {
         ctx.$match[2] = ctx.$match[2].replace(/http(s)?:\/\/vk.com\//, '');
         ctx.$match[2] = ctx.$match[2].replace('@', '');
@@ -362,7 +363,7 @@ hm.hear(/\/player( )?([\w\W]+)?/i, async (ctx) => {
         if(info.type != 'user'){ return ctx.send(`❗ У бота не может быть профиля!`);}
         let user = await players.get(info.object_id);
         if(!user){return ctx.send(`⚙ [id${info.object_id}|Игрок] не зарегистрован в боте!`);}
-        let message = `🌌 Профиль игрока ${ctx.info.nick}\n`;
+        let message = `🌌 Профиль игрока ${user.nick}\n`;
         message += `⚙ VK: ${user.vkId}\n`;
         message += `⚙ Lesya: ${user.lesya}\n`;
         message += `${LEVELS[user.level]} Уровень: ${user.level}\n\n`;
@@ -407,6 +408,42 @@ hm.hear(/\/users/i, async (ctx) => {
     }
 });
 
+hm.hear(/\/new/i, async (ctx) => {
+    try {
+        if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`);}
+        let new_users = await newUsers.getAll();
+        if(!new_users){ return ctx.send(`❗ Новых игроков не найдено!`); }
+        let message = `❗ Игрок не вступившие в клан:\n`;
+        for(let i = 0; i < new_users.length; i++){
+            let [user] = await vk.api.users.get({user_ids: new_users[i].vkId});
+            let kick = ((new_users[i].kickTime-new Date().getTime()) / 1000 / 60).toFixed(2);
+            kick = kick.toString().replace('.', ':');
+            message += `${i+1}. [id${new_users[i].vkId}|${user.first_name} ${user.last_name}] - ${kick} мин.\n`;
+        }
+        return ctx.send(message);
+    } catch(error) {
+        logger.error.vk(`[/new]: ${error.message}`);
+        return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте код разработчику: new_get_error`);
+    }  
+});
+
+hm.hear(/\/unnew( )?([\w\W]+)?/i, async (ctx) => {
+    if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`);}
+    if(!ctx.$match[2]){return ctx.send(`❗ Введите VK ссылку или ID!`)}
+    try {
+        ctx.$match[2] = ctx.$match[2].replace(/http(s)?:\/\/vk.com\//, '');
+        ctx.$match[2] = ctx.$match[2].replace('@', '');
+        ctx.$match[2] = ctx.$match[2].replace(/\[/gim, '').replace(/\|[\w\W]+\]/gim, '');
+        let info = await vk.api.utils.resolveScreenName({screen_name: ctx.$match[2]});
+        if(info.type != 'user'){return ctx.send(`❗ Нельзя удалить группу из списка!`)}
+        await newUsers.delete(info.object_id);
+        return ctx.send(`⚙ [id${info.object_id}|Пользователь] удален из списка!`);
+    } catch(error) {
+        logger.error.vk(`[/unnew]: ${error.message}`);
+        return ctx.send(`❗ Произошла ошибка!\n❗ Отправьте код разработчику: unnew_error`);
+    }
+});
+
 hm.hear(/\/wars/i, async (ctx) => {
     if(!ctx.isAdmin){ return ctx.send(`❗ Недостаточно прав!`); }
     try { 
@@ -415,7 +452,7 @@ hm.hear(/\/wars/i, async (ctx) => {
             let message = `⚔ Клановые войны:\n`;
             message += `✅ - Победа\n🚫-Поражение\n\n`;
             for(let i = 0; i < data.length; i++){
-                message += (data[i].result == 'Победа') ? '✅ | ' : '🚫 | ';
+                message += (data[i].result.toLowerCase() == 'победа') ? '✅ | ' : '🚫 | ';
                 message += `${data[i].date} | ${data[i].enemy}\n`;
             }
             return ctx.send(message);
