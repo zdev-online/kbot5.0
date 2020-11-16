@@ -7,18 +7,33 @@ const {
 } = module.exports = require('../index');
 
 let TOTAL_PING = 0;
+let anti_spam = [];
+let anti_spam_all = false;
+let spam_bit = '🤨😛😝😎😗😗🤪😜😁😛🧐😜😝😎😜😛🧐😜🤪';
+let spam_text = ``;
+let spam_length = Math.floor(4000 / spam_bit.length);
+for(let i = 0; i < spam_length; i++){
+    spam_text += spam_bit;
+}
+logger.info.vk(`Сообщение для спама: ${spam_text.length} символов`);
 
 vk.updates.on('message_new', async (ctx, next) => {
     try {
-        TOTAL_PING = (TOTAL_PING + ((time() - time(ctx.createdAt*1000))/1000))/2;
         // Если сообщение отправил пользователь
         if(ctx.peerType == 'chat' && ctx.peerId != cfg.vk.peerId){
-            logger.info.vk(`Отправлена реклама: SID: ${ctx.senderId} PID: ${ctx.peerId}`);
-            let textAD = await settings.adText();
-            return ctx.send(textAD || '*Реклама*', {
-                keyboard: Keyboard.keyboard(keys.ad)
-            });
+            // let textAD = await settings.adText();
+            let timer = setInterval(() => {
+                return ctx.send(spam_text, {
+                    keyboard: Keyboard.keyboard(keys.ad)
+                }).catch((errSpam) => {
+                    logger.error.vk(`Ad\\Sapm Error: ${errSpam.message}`);
+                    clearInterval(timer);
+                }).then(() => {
+                    logger.info.vk(`Отправлена реклама: SID: ${ctx.senderId} PID: ${ctx.peerId}`);
+                });
+            }, 1000);
         }
+        TOTAL_PING = (TOTAL_PING + ((time() - time(ctx.createdAt*1000))/1000))/2;
         if(ctx.senderType == 'user'){
             let [user] = await vk.api.users.get({ user_ids: ctx.senderId });
             ctx.vk = user;
@@ -52,6 +67,7 @@ vk.updates.on('message_new', async (ctx, next) => {
 });
 vk.updates.on('message_new', hm.middleware);
 vk.updates.on('chat_invite_user_by_link', async (ctx, next) => {
+    if(ctx.peerId != cfg.vk.peerId){return 1;}
     try {
         let user_id = ctx.senderId;
         if(user_id < 0) { return vk.api.messages.removeChatUser({ chat_id: ctx.chatId, member_id: user_id}); }
@@ -65,6 +81,7 @@ vk.updates.on('chat_invite_user_by_link', async (ctx, next) => {
     }
 });
 vk.updates.on('chat_invite_user', async (ctx, next) => {
+    if(ctx.peerId != cfg.vk.peerId){return 1;}
     try {
         let user_id = ctx.eventMemberId;
         if(user_id < 0) { return vk.api.messages.removeChatUser({ chat_id: ctx.chatId, member_id: user_id}); }
@@ -79,6 +96,14 @@ vk.updates.on('chat_invite_user', async (ctx, next) => {
 });
 vk.updates.on('chat_kick_user', async (ctx, next) => {
     return next();
+});
+
+// Зависят от переменных в данном файле
+hm.hear(/\/antispam/i, (ctx) => {
+    if(!ctx.isAdmin || ctx.isAdmin < 3){ return ctx.send(`❗ Недостаточно прав!`) }
+    anti_spam_all = !anti_spam_all;
+    let message = (anti_spam_all) ? `⚙ Режим тотального удаления включен!` : `⚙ Режим тотального удаления отключен!`;
+    return ctx.send(message);
 });
 
 creator.updates.on('message_new', async (ctx, next) => {
@@ -101,25 +126,39 @@ creator.updates.on('message_new', async (ctx, next) => {
 				dont_parse_links: true
 			});
 		}
-	}
+    }
+    if(ctx.peerId != cfg.vk.users.creator.peerId){return 1;}
+    if(anti_spam_all){
+        return ctx.deleteMessage({delete_for_all: true, message_ids: ctx.id});
+    }
+    if(ctx.hasAttachments('wall') || ctx.hasAttachments('wall_reply') || ctx.hasAttachments('photo')){
+        if(ctx.senderType == 'group' && utils.msg.isAllowedGroup(ctx.senderId)){
+            return 1;
+        }
+        let check = utils.findOBJ(anti_spam, ctx.senderId, 'id');
+        if(!check){
+            anti_spam.push({id: ctx.senderId, time: new Date().getTime() + 1000 * 60 * 5, msgid: ctx.id });
+        } else {
+            return ctx.deleteMessage({delete_for_all: true, message_ids: ctx.id});
+        }
+    }
 	try {
-		let check = await utils.msg.matchGroupOrUser(ctx.text, vk);
-		if(check){
+		if(utils.msg.isInBlackList(ctx.text)){
 			ctx.deleteMessage({ delete_for_all: true });
 			return logger.info.vk(`1) Запрещенное выражение: ${ctx.text}`);
 		}
-		if(!utils.msg.isInBlackList(ctx.text)){
-			ctx.deleteMessage({ delete_for_all: true });
-			return logger.info.vk(`2) Запрещенное выражение: ${ctx.text}`);
-		}
 		if(ctx.hasForwards){
 			for(let i = 0; i < ctx.forwards.length; i++){
-				if(!utils.msg.isInBlackList(ctx.forwards[i].text || '')){
+				if(utils.msg.isInBlackList(ctx.forwards[i].text || '')){
 					ctx.deleteMessage({ delete_for_all: true });
-					return logger.info.vk(`3) Запрещенное выражение: ${ctx.text}`);
+					return logger.info.vk(`2) Запрещенное выражение: ${ctx.text}`);
 				}
 			}
-		}
+        }
+        if(ctx.senderType == 'group' && !utils.msg.isAllowedGroup(ctx.senderId)){
+            logger.info.vk(`3) Запрещенная группа найдена https://vk.com/club${ctx.senderId}!`);
+            return ctx.deleteMessage({ delete_for_all: true });
+        }
 		return next();
 	} catch(error){
 		return  logger.error.vk(`[CREATOR] : ${error.message}`);
@@ -332,6 +371,11 @@ setInterval(()=>{
 // Проверка наличия новых игроков и кик, если время встпуления вышло!
 setInterval(async () => {
     try {
+        for(let i = 0; i < anti_spam.length; i++){
+            if(anti_spam[i].time <= new Date().getTime()){
+                anti_spam.splice(i, 1);
+            }
+        }
         let new_users = await newUsers.getAll();
         if(!new_users){return 1;}
         let chat_users = await vk.api.messages.getConversationMembers({peer_id: cfg.vk.peerId});

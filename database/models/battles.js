@@ -38,7 +38,8 @@ module.exports = class Battles {
     addBattleDayOrChangeNorm(new_battle_norm){
         return new Promise(async (ok, err) => {
             try {
-                let today = await battles.findOne({date: time().format('DD.MM.YYYY')});
+                let date = time().format('DD.MM.YYYY');
+                let today = await battles.findOne({date: date});
                 if(today){
                     today.norm = new_battle_norm;
                     await today.save();

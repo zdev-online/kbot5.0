@@ -163,8 +163,9 @@ hm.hear(/^\/me/, async (ctx) => {
 
 hm.hear(/^\/nick( )?([\w\W]+)?/i, async (ctx) => {
     if(!ctx.info){ return ctx.send(`❗ Вы не зарегистрованы!`);}
+    if(!ctx.$match[2]){return ctx.send(`❗ Вы не указали новый ник!`);}
     try {
-        let user = await players.update(ctx.senderId, {nick: nick});
+        let user = await players.update(ctx.senderId, {nick: ctx.$match[2]});
         if(user){
             return ctx.send(`⚙ ${ctx.info.nick}, ник изменен!`);
         } else {

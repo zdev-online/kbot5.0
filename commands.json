@@ -208,5 +208,12 @@
         "desc": "Топ за дату\\сегодня",
         "level": 0,
         "for_reg": false
+    }, 
+    {
+        "text": "/antispam",
+        "argv": false,
+        "desc": "Мут всех",
+        "level": 3,
+        "for_reg": true 
     }
 ]

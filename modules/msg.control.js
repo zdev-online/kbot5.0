@@ -1,27 +1,8 @@
 let check_words = [
-    /(http(s)?:\/\/)?(\.[com|ru|ly|cc|su|io|me])?/gim,
+    /(http(s)?:\/\/)?(\.[com\|ru\|ly\|cc\|su\|io\|me])/gim,
     /vk\.me\/join/gim
 ]
 const cfg = require('../config.json');
-
-module.exports.matchGroupOrUser = async (string, vk) => {
-    try {
-        let user = string.match(/\[([a-zA-Z0-9]+)\|[\w]+\]/i);
-        if(user){
-            if(user[1]){
-                let check = await vk.api.utils.resolveScreenName({screen_name: user[1]});
-                if(!check){return false;}
-                if(check.type == 'group' && (check.object_id != cfg.vk.id || check.object_id != +cfg.vk.lesyaId)){
-                    return true;
-                }
-            }
-        }
-        return false;
-    } catch {
-        return false;
-    }
-}
-
 module.exports.isInBlackList = (string) => {
     for(let i = 0; i < check_words.length; i++){
         if(check_words[i].test(string)){
@@ -30,3 +11,20 @@ module.exports.isInBlackList = (string) => {
     }
     return false;
 }
+
+module.exports.isAllowedGroup = (id) => {
+    switch (id){
+        case cfg.vk.lesyaId: {
+            return true;
+        }
+        case cfg.vk.cmId: {
+            return true;
+        }
+        case -cfg.vk.id: {
+            return true;
+        }
+        default: {
+            return false;
+        }
+    }
+} 
